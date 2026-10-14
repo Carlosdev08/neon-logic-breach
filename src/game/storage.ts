@@ -15,7 +15,7 @@ export function loadSave(): SaveData {
   const oldUnlocked = typeof p.unlocked === "number" ? Math.min(5, Math.max(1, p.unlocked)) : 1;
   const progress = { ...DEFAULT_SAVE.progress, ...(p.progress ?? {}) };
   for (const difficulty of ["facil", "medio", "avanzado"] as const) {
-   const value = progress[difficulty];
+   const value = p.progress?.[difficulty];
    progress[difficulty] = {
     bestScore: typeof value?.bestScore === "number" ? value.bestScore : difficulty === "medio" ? oldBest : 0,
     unlocked: typeof value?.unlocked === "number" ? Math.min(5, Math.max(1, value.unlocked)) : difficulty === "medio" ? oldUnlocked : 1,
