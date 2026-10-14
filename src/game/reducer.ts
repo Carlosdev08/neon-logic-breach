@@ -1,5 +1,7 @@
 import {
   MISSIONS,
+  getMissionsForDifficulty,
+  type Difficulty,
   createRng,
   generateSecret,
   scoreGuess,
@@ -26,6 +28,7 @@ export interface LogLine {
 export interface GameState {
   phase: Phase;
   missionIndex: number;
+  difficulty: Difficulty;
   secret: number[];
   input: number[];
   attempts: Attempt[];
@@ -41,7 +44,7 @@ export interface GameState {
 }
 
 export type Action =
-  | { type: "START"; missionIndex: number; seed: number; keepRun?: boolean }
+  | { type: "START"; missionIndex: number; seed: number; keepRun?: boolean; difficulty?: Difficulty }
   | { type: "DIGIT"; digit: number }
   | { type: "BACKSPACE" }
   | { type: "CLEAR" }
@@ -56,6 +59,7 @@ export type Action =
 export const initialState: GameState = {
   phase: "title",
   missionIndex: 0,
+  difficulty: "medio",
   secret: [],
   input: [],
   attempts: [],
@@ -80,13 +84,15 @@ function startMission(
   missionIndex: number,
   seed: number,
   keepRun: boolean,
+  difficulty: Difficulty = s.difficulty,
 ): GameState {
-  const m = MISSIONS[missionIndex]!;
+  const m = getMissionsForDifficulty(difficulty)[missionIndex]!;
   const rng = createRng(seed);
   let next: GameState = {
     ...s,
     phase: "playing",
     missionIndex,
+    difficulty,
     seed,
     secret: generateSecret(m.codeLength, rng),
     input: [],
@@ -109,13 +115,13 @@ function startMission(
 }
 
 export function reducer(s: GameState, a: Action): GameState {
-  const m = MISSIONS[s.missionIndex]!;
+  const m = getMissionsForDifficulty(s.difficulty)[s.missionIndex]!;
   switch (a.type) {
     case "START":
-      return startMission(s, a.missionIndex, a.seed, !!a.keepRun);
+      return startMission(s, a.missionIndex, a.seed, !!a.keepRun, a.difficulty ?? s.difficulty);
     case "CONTINUE":
       if (s.phase !== "won") return s;
-      if (s.missionIndex >= MISSIONS.length - 1) return { ...s, phase: "victory" };
+      if (s.missionIndex >= getMissionsForDifficulty(s.difficulty).length - 1) return { ...s, phase: "victory" };
       return startMission(s, s.missionIndex + 1, a.seed, true);
     case "QUIT":
       return { ...initialState, logId: s.logId };
