@@ -48,3 +48,40 @@ describe("computeScore", () => {
     expect(a.total - b.total).toBe(300);
   });
 });
+
+
+describe("generateSecret boundaries", () => {
+  it("rejects lengths outside the available digit range", () => {
+    expect(() => generateSecret(0, createRng(1))).toThrow("Longitud inválida");
+    expect(() => generateSecret(11, createRng(1))).toThrow("Longitud inválida");
+  });
+  it("supports all ten unique digits", () => {
+    const code = generateSecret(10, createRng(2026));
+    expect(new Set(code).size).toBe(10);
+    expect(code).toHaveLength(10);
+  });
+});
+
+describe("nextHint exhaustion", () => {
+  it("returns null after every absent digit and position has been revealed", () => {
+    const secret = [1, 2];
+    const hints: Hint[] = [
+      { kind: "absent", digit: 0 },
+      { kind: "position", index: 0, digit: 1 },
+      { kind: "absent", digit: 3 },
+      { kind: "position", index: 1, digit: 2 },
+      ...[4, 5, 6, 7, 8, 9].map((digit): Hint => ({ kind: "absent", digit })),
+    ];
+    expect(nextHint(secret, hints, createRng(5))).toBeNull();
+  });
+});
+
+describe("computeScore boundaries", () => {
+  it("never returns a negative final score", () => {
+    expect(computeScore({ mission: MISSIONS[0]!, attemptsUsed: 100, timeLeft: 0, hintsUsed: 100, streak: 0 }).total).toBe(0);
+  });
+  it("adds time, attempts, and streak bonuses predictably", () => {
+    const score = computeScore({ mission: MISSIONS[0]!, attemptsUsed: 2, timeLeft: 10, hintsUsed: 0, streak: 2 });
+    expect(score).toMatchObject({ base: 500, timeBonus: 50, attemptBonus: 800, streakBonus: 500, total: 1850 });
+  });
+});
