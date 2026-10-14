@@ -19,8 +19,8 @@ describe("game UI components", () => {
     );
     expect(screen.getByRole("heading", { name: "NEON BREACH" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Jugar misión 1/ })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Fácil" }));
-    expect(screen.getByRole("heading", { name: "Fácil · Misiones" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Medio" }));
+    expect(screen.getByRole("heading", { name: "Medio · Misiones" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Jugar misión 1/ }));
     expect(onStart).toHaveBeenCalledWith(0);
   });
