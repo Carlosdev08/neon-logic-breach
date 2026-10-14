@@ -61,7 +61,12 @@ export function GameScreen({ s, dispatch, sound }: { s: GameState; dispatch: Dis
   const attemptsLeft = m.maxAttempts - s.attempts.length;
   const lowTime = s.timeLeft <= 30;
   const logRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }); }, [s.log.length]);
+  useEffect(() => {
+    const logElement = logRef.current;
+    if (typeof logElement?.scrollTo === "function") {
+      logElement.scrollTo({ top: logElement.scrollHeight });
+    }
+  }, [s.log.length]);
   const playing = s.phase === "playing";
 
   return (
