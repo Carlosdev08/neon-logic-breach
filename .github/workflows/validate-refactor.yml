@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: bun install --no-save
       - name: Apply and persist Prettier formatting
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/visual-preview')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           bun run format
           if ! git diff --quiet; then
@@ -38,6 +38,9 @@ jobs:
             git commit -m "style: apply Prettier formatting"
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
+      - name: Format preview branch
+        if: github.ref == 'refs/heads/visual-preview'
+        run: bun run format
       - name: Run tests
         run: bun run test
       - name: Build
