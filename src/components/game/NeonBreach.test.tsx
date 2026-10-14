@@ -1,0 +1,55 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { NeonBreach } from "./NeonBreach";
+
+describe("NeonBreach application", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+  });
+
+  it("renders the landing screen and opens and closes the help modal", async () => {
+    render(<NeonBreach />);
+
+    expect(screen.getByRole("heading", { name: "NEON BREACH" })).toBeInTheDocument();
+    expect(await screen.findByText(/Récord:/)).toBeInTheDocument();
+
+    const helpButtons = screen.getAllByRole("button", { name: "Cómo jugar" });
+    fireEvent.click(helpButtons[helpButtons.length - 1]!);
+    expect(screen.getByRole("dialog", { name: "Cómo jugar" })).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Cómo jugar" })).not.toBeInTheDocument());
+  });
+
+  it("starts a mission, accepts keyboard input, and supports pause/resume", async () => {
+    render(<NeonBreach />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "INICIAR OPERACIÓN" }));
+    expect(screen.getByRole("heading", { name: "Archivo Fantasma" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Cerradura" })).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "7" });
+    expect(screen.getByLabelText("Código actual: 7")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Pausa" }));
+    expect(screen.getByRole("heading", { name: "EN PAUSA" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Reanudar" }));
+    expect(screen.queryByRole("heading", { name: "EN PAUSA" })).not.toBeInTheDocument();
+  });
+
+  it("confirms progress reset rather than clearing it immediately", async () => {
+    localStorage.setItem("neon-breach:v1", JSON.stringify({ bestScore: 900, unlocked: 3, sound: false }));
+    render(<NeonBreach />);
+
+    expect(await screen.findByText(/Récord:/)).toHaveTextContent("900");
+    fireEvent.click(screen.getByRole("button", { name: "Reiniciar progreso" }));
+    expect(screen.getByRole("dialog", { name: "¿Reiniciar progreso?" })).toBeInTheDocument();
+    expect(localStorage.getItem("neon-breach:v1")).toContain("900");
+
+    fireEvent.click(screen.getByRole("button", { name: "Borrar" }));
+    await waitFor(() => {
+      expect(JSON.parse(localStorage.getItem("neon-breach:v1")!)).toMatchObject({ bestScore: 0, unlocked: 1, sound: false });
+    });
+  });
+});
