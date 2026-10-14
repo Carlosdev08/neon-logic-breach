@@ -69,7 +69,7 @@ describe("NeonBreach application", () => {
       await screen.findByText(/El \d no está en el código|Posición \d = \d/),
     ).toBeInTheDocument();
     expect(screen.getByText("Pistas 1/3")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Pista −150/ })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Pista −250/ })).toBeEnabled();
   });
 
   it("confirms progress reset rather than clearing it immediately", async () => {
