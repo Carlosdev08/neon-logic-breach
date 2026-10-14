@@ -471,7 +471,7 @@ export function Overlay({ s, dispatch }: { s: GameState; dispatch: Dispatch<Acti
           ACCESO CONCEDIDO
         </h2>
         <p className="mt-1 font-mono text-sm text-muted-foreground">Código: {s.secret.join("")}</p>
-        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1 text-left font-mono text-sm">
+        <dl aria-label="Desglose de puntuación" className="mx-auto mt-4 grid w-full max-w-sm grid-cols-[1fr_auto] gap-x-6 gap-y-2 text-left font-mono text-sm tabular-nums">
           <dt>Base</dt>
           <dd className="text-right">+{b.base}</dd>
           <dt>Tiempo</dt>
@@ -548,7 +548,7 @@ export function Overlay({ s, dispatch }: { s: GameState; dispatch: Dispatch<Acti
   void m;
   return (
     <div
-      className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/90 p-6 text-center backdrop-blur-sm animate-rise"
+      className="absolute inset-0 z-10 flex max-h-full flex-col items-center justify-center overflow-y-auto bg-background p-4 text-center sm:p-6 animate-rise"
       role="dialog"
       aria-modal="true"
     >
