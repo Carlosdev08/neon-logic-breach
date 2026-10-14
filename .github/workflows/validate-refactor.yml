@@ -1,10 +1,10 @@
-name: Validate refactor
+name: Validate NEON BREACH
 
 on:
   pull_request:
     branches: [main]
   push:
-    branches: [refactor/solid-architecture]
+    branches: [main, refactor/solid-architecture]
 
 permissions:
   contents: read
@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Run tests
