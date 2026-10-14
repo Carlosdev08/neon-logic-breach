@@ -7,7 +7,11 @@ on:
     branches: [main, refactor/solid-architecture]
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -15,12 +19,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Install dependencies
         run: bun install --no-save
+      - name: Apply and persist Prettier formatting
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          bun run format
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -u
+            git commit -m "style: apply Prettier formatting"
+            git push origin HEAD:main
+          fi
       - name: Run tests
         run: bun run test
       - name: Build
