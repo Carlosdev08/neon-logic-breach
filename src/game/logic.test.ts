@@ -7,6 +7,7 @@ import {
   computeScore,
   MISSIONS,
   type Hint,
+  hintPenaltyFor,
 } from "./logic";
 
 describe("generateSecret", () => {
@@ -41,10 +42,26 @@ describe("nextHint", () => {
     for (let i = 0; i < 6; i++) {
       const h = nextHint(secret, hints, rng)!;
       if (h.kind === "absent") expect(secret).not.toContain(h.digit);
+      else if (h.kind === "present") expect(secret).toContain(h.digit);
       else expect(secret[h.index]).toBe(h.digit);
       hints.push(h);
     }
     expect(new Set(hints.map((h) => JSON.stringify(h))).size).toBe(6);
+  });
+});
+
+describe("hint penalty tiers", () => {
+  it("charges more for more revealing clues and scales by difficulty", () => {
+    const hints: Hint[] = [
+      { kind: "absent", digit: 1 },
+      { kind: "present", digit: 7 },
+      { kind: "position", index: 0, digit: 7 },
+    ];
+    expect(hintPenaltyFor(hints.slice(0, 1), "medio")).toBe(150);
+    expect(hintPenaltyFor(hints.slice(0, 2), "medio")).toBe(400);
+    expect(hintPenaltyFor(hints, "medio")).toBe(800);
+    expect(hintPenaltyFor(hints, "facil")).toBe(600);
+    expect(hintPenaltyFor(hints, "avanzado")).toBe(1250);
   });
 });
 
@@ -75,7 +92,8 @@ describe("progressive hints", () => {
     const first = nextHint(secret, [], createRng(12));
     expect(first?.kind).toBe("absent");
     const second = nextHint(secret, [first!], createRng(13));
-    expect(second?.kind).toBe("position");
+    expect(second?.kind).toBe("present");
+    if (second?.kind === "present") expect(secret).toContain(second.digit);
     const third = nextHint(secret, [first!, second!], createRng(14));
     expect(third?.kind).toBe("position");
   });
