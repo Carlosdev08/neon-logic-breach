@@ -112,3 +112,20 @@ describe("computeScore boundaries", () => {
     });
   });
 });
+
+
+describe("difficulty presets", () => {
+  it("provides five missions with distinct easy, medium and advanced rules", async () => {
+    const { getMissionsForDifficulty } = await import("./logic");
+    const easy = getMissionsForDifficulty("facil");
+    const medium = getMissionsForDifficulty("medio");
+    const advanced = getMissionsForDifficulty("avanzado");
+    expect(easy).toHaveLength(5);
+    expect(medium).toHaveLength(5);
+    expect(advanced).toHaveLength(5);
+    expect(easy[0]!.timeLimit).toBeGreaterThan(medium[0]!.timeLimit);
+    expect(easy[0]!.maxAttempts).toBeGreaterThan(medium[0]!.maxAttempts);
+    expect(advanced[0]!.codeLength).toBeGreaterThan(medium[0]!.codeLength);
+    expect(advanced[0]!.timeLimit).toBeLessThan(medium[0]!.timeLimit);
+  });
+});
