@@ -26,4 +26,4 @@ jobs:
       - name: Build
         run: bun run build
       - name: Lint
-        run: bun run lint -- --fix
+        run: bun run lint
