@@ -304,6 +304,10 @@ export function GameScreen({
             <span className="text-accent">● Exactos: dígito y posición correctos</span>
             <span className="text-warning">◐ Desplazados: dígito correcto, posición incorrecta</span>
           </div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs" aria-label="Leyenda de resultados">
+            <span className="text-accent">● Exactos: dígito y posición correctos</span>
+            <span className="text-warning">◐ Desplazados: dígito correcto, posición incorrecta</span>
+          </div>
           {s.attempts.length === 0 ? (
             <p className="mt-2 border border-dashed border-border p-3 text-center font-mono text-xs text-muted-foreground">
               Sin intentos todavía. Prueba un primer código.
