@@ -113,7 +113,6 @@ describe("computeScore boundaries", () => {
   });
 });
 
-
 describe("difficulty presets", () => {
   it("provides five missions with distinct easy, medium and advanced rules", async () => {
     const { getMissionsForDifficulty } = await import("./logic");

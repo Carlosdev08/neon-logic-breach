@@ -44,7 +44,16 @@ export function NeonBreach() {
           ...v,
           unlocked: Math.max(v.progress[s.difficulty].unlocked, Math.min(5, s.missionIndex + 2)),
           bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
-          progress: { ...v.progress, [s.difficulty]: { unlocked: Math.max(v.progress[s.difficulty].unlocked, Math.min(5, s.missionIndex + 2)), bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore) } },
+          progress: {
+            ...v.progress,
+            [s.difficulty]: {
+              unlocked: Math.max(
+                v.progress[s.difficulty].unlocked,
+                Math.min(5, s.missionIndex + 2),
+              ),
+              bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
+            },
+          },
         }));
       }
       if (s.phase === "lost") play("lose", save.sound);
@@ -98,8 +107,22 @@ export function NeonBreach() {
         <TitleScreen
           save={save}
           loaded={loaded}
-          onStart={(i) => dispatch({ type: "START", missionIndex: i, seed: newSeed(), difficulty: save.difficulty })}
-          onDifficultyChange={(difficulty: Difficulty) => setSave((v) => ({ ...v, difficulty, bestScore: v.progress[difficulty].bestScore, unlocked: v.progress[difficulty].unlocked }))}
+          onStart={(i) =>
+            dispatch({
+              type: "START",
+              missionIndex: i,
+              seed: newSeed(),
+              difficulty: save.difficulty,
+            })
+          }
+          onDifficultyChange={(difficulty: Difficulty) =>
+            setSave((v) => ({
+              ...v,
+              difficulty,
+              bestScore: v.progress[difficulty].bestScore,
+              unlocked: v.progress[difficulty].unlocked,
+            }))
+          }
           onReset={() => setConfirmReset(true)}
           onHelp={() => setHelp(true)}
         />

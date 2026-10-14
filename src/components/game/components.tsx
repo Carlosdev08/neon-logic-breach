@@ -1,5 +1,10 @@
 import { useEffect, useRef, type ReactNode, type Dispatch } from "react";
-import { HINT_PENALTY, DIFFICULTIES, getMissionsForDifficulty, type Difficulty } from "@/game/logic";
+import {
+  HINT_PENALTY,
+  DIFFICULTIES,
+  getMissionsForDifficulty,
+  type Difficulty,
+} from "@/game/logic";
 import { type GameState, type Action } from "@/game/reducer";
 import { play } from "@/game/sound";
 import { type SaveData } from "@/game/storage";
@@ -40,7 +45,8 @@ export function TitleScreen({
         NEON BREACH
       </h1>
       <p className="mt-6 max-w-xl text-muted-foreground">
-        Eres una operadora freelance. Cinco corporaciones esconden sus secretos tras cerraduras cifradas. Elige tu dificultad y deduce cada código antes de que el rastreo te alcance.
+        Eres una operadora freelance. Cinco corporaciones esconden sus secretos tras cerraduras
+        cifradas. Elige tu dificultad y deduce cada código antes de que el rastreo te alcance.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button className={`${btnAccent} px-8 py-3 text-base`} onClick={() => onStart(0)}>
@@ -60,15 +66,27 @@ export function TitleScreen({
             Récord: {loaded ? progress.bestScore.toLocaleString("es") : "…"}
           </span>
         </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-3" role="group" aria-label="Seleccionar dificultad">
+        <div
+          className="mt-4 grid gap-2 sm:grid-cols-3"
+          role="group"
+          aria-label="Seleccionar dificultad"
+        >
           {DIFFICULTIES.map((level) => (
-            <button key={level.id} type="button" aria-pressed={difficulty === level.id} onClick={() => onDifficultyChange(level.id)} className={`border p-3 text-left transition-colors ${difficulty === level.id ? "border-primary bg-primary/10" : "border-border hover:border-accent"}`}>
+            <button
+              key={level.id}
+              type="button"
+              aria-pressed={difficulty === level.id}
+              onClick={() => onDifficultyChange(level.id)}
+              className={`border p-3 text-left transition-colors ${difficulty === level.id ? "border-primary bg-primary/10" : "border-border hover:border-accent"}`}
+            >
               <span className="block font-display font-bold text-primary">{level.label}</span>
               <span className="mt-1 block text-xs text-muted-foreground">{level.description}</span>
             </button>
           ))}
         </div>
-        <p className="mt-4 font-mono text-xs uppercase tracking-widest text-accent">{DIFFICULTIES.find((d) => d.id === difficulty)?.label} · 5 misiones</p>
+        <p className="mt-4 font-mono text-xs uppercase tracking-widest text-accent">
+          {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · 5 misiones
+        </p>
         <ol className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           {missions.map((m, i) => {
             const locked = m.id > progress.unlocked;
