@@ -41,9 +41,9 @@ describe("game UI components", () => {
     expect(screen.queryByRole("button", { name: /Misión 2 bloqueada/ })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Medio" }));
     expect(screen.getByRole("button", { name: /Misión 2 bloqueada/ })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Reiniciar progreso" }));
     fireEvent.click(screen.getByRole("button", { name: "← Volver a dificultades" }));
     fireEvent.click(screen.getByRole("button", { name: "Cómo jugar" }));
-    fireEvent.click(screen.getByRole("button", { name: "Reiniciar progreso" }));
     expect(onHelp).toHaveBeenCalledOnce();
     expect(onReset).toHaveBeenCalledOnce();
   });
