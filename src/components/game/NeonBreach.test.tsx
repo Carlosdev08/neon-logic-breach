@@ -14,7 +14,7 @@ describe("NeonBreach application", () => {
     expect(screen.getByRole("heading", { name: "NEON BREACH" })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Seleccionar dificultad" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Fácil/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Medio/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Elegir dificultad Medio" })).toBeInTheDocument();
     expect(await screen.findByText(/Récord:/)).toBeInTheDocument();
 
     const helpButtons = screen.getAllByRole("button", { name: "Cómo jugar" });
@@ -29,10 +29,11 @@ describe("NeonBreach application", () => {
 
   it("changes difficulty and shows different mission rules", async () => {
     render(<NeonBreach />);
-    fireEvent.click(await screen.findByRole("button", { name: /Fácil/ }));
-    expect(screen.getByRole("button", { name: /Fácil/ })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(await screen.findByRole("button", { name: "Elegir dificultad Fácil" }));
+    expect(screen.getByRole("heading", { name: "Fácil · Misiones" })).toBeInTheDocument();
     expect(screen.getByText("3 díg · 13 int · 4 min")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Avanzado/ }));
+    fireEvent.click(screen.getByRole("button", { name: "← Volver a dificultades" }));
+    fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Avanzado" }));
     expect(screen.getByText("5 díg · 8 int · 2 min")).toBeInTheDocument();
   });
 
