@@ -83,7 +83,7 @@ describe("NeonBreach application", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Borrar" }));
     await waitFor(() => {
-      expect(JSON.parse(localStorage.getItem("neon-breach:v1")!)).toMatchObject({
+      expect(JSON.parse(localStorage.getItem("neon-breach:v2")!)).toMatchObject({
         bestScore: 0,
         unlocked: 1,
         sound: false,
