@@ -19,7 +19,9 @@ describe("NeonBreach application", () => {
     expect(screen.getByRole("dialog", { name: "Cómo jugar" })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: "Escape" });
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Cómo jugar" })).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "Cómo jugar" })).not.toBeInTheDocument(),
+    );
   });
 
   it("starts a mission, accepts keyboard input, and supports pause/resume", async () => {
@@ -39,7 +41,10 @@ describe("NeonBreach application", () => {
   });
 
   it("confirms progress reset rather than clearing it immediately", async () => {
-    localStorage.setItem("neon-breach:v1", JSON.stringify({ bestScore: 900, unlocked: 3, sound: false }));
+    localStorage.setItem(
+      "neon-breach:v1",
+      JSON.stringify({ bestScore: 900, unlocked: 3, sound: false }),
+    );
     render(<NeonBreach />);
 
     expect(await screen.findByText(/Récord:/)).toHaveTextContent("900");
@@ -49,7 +54,11 @@ describe("NeonBreach application", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Borrar" }));
     await waitFor(() => {
-      expect(JSON.parse(localStorage.getItem("neon-breach:v1")!)).toMatchObject({ bestScore: 0, unlocked: 1, sound: false });
+      expect(JSON.parse(localStorage.getItem("neon-breach:v1")!)).toMatchObject({
+        bestScore: 0,
+        unlocked: 1,
+        sound: false,
+      });
     });
   });
 });
