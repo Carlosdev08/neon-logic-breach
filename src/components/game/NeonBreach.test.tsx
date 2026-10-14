@@ -79,7 +79,7 @@ describe("NeonBreach application", () => {
     );
     render(<NeonBreach />);
 
-    expect(await screen.findByText(/Récord:/)).toHaveTextContent("900");
+    expect(await screen.findByText(/RÉCORD/i)).toHaveTextContent("900");
     fireEvent.click(screen.getByRole("button", { name: "Reiniciar progreso" }));
     expect(screen.getByRole("dialog", { name: "¿Reiniciar progreso?" })).toBeInTheDocument();
     expect(localStorage.getItem("neon-breach:v2")).toContain("900");
