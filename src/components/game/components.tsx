@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode, type Dispatch } from "react";
 import {
-  HINT_PENALTY,
+  HINT_PENALTIES,
   DIFFICULTIES,
   getMissionsForDifficulty,
   type Difficulty,
@@ -342,7 +342,7 @@ export function GameScreen({
               disabled={!playing || s.hints.length >= m.maxHints}
               onClick={() => dispatch({ type: "HINT" })}
             >
-              Pista −{HINT_PENALTY}
+              Pista −{HINT_PENALTIES[s.difficulty][s.hints.length] ?? HINT_PENALTIES[s.difficulty][HINT_PENALTIES[s.difficulty].length - 1]}
             </button>
           </div>
           {s.hints.length === 0 ? (
@@ -353,7 +353,7 @@ export function GameScreen({
                 <li key={i}>
                   {h.kind === "absent"
                     ? `El ${h.digit} no está en el código`
-                    : `Posición ${h.index + 1} = ${h.digit}`}
+                    : h.kind === "present" ? `El ${h.digit} está en el código, pero no sabemos dónde` : `Posición ${h.index + 1} = ${h.digit}`}
                 </li>
               ))}
             </ul>
