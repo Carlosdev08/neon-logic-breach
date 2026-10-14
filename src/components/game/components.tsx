@@ -1,5 +1,10 @@
-import { useEffect, useRef, type ReactNode, type Dispatch } from "react";
-import { MISSIONS, HINT_PENALTY } from "@/game/logic";
+import { useEffect, useRef, useState, type ReactNode, type Dispatch } from "react";
+import {
+  HINT_PENALTY,
+  DIFFICULTIES,
+  getMissionsForDifficulty,
+  type Difficulty,
+} from "@/game/logic";
 import { type GameState, type Action } from "@/game/reducer";
 import { play } from "@/game/sound";
 import { type SaveData } from "@/game/storage";
@@ -17,15 +22,21 @@ export function TitleScreen({
   save,
   loaded,
   onStart,
+  onDifficultyChange,
   onReset,
   onHelp,
 }: {
   save: SaveData;
   loaded: boolean;
   onStart: (i: number) => void;
+  onDifficultyChange: (difficulty: Difficulty) => void;
   onReset: () => void;
   onHelp: () => void;
 }) {
+  const difficulty = save.difficulty;
+  const missions = getMissionsForDifficulty(difficulty);
+  const progress = save.progress[difficulty];
+  const [showMissions, setShowMissions] = useState(false);
   return (
     <main className="mx-auto flex max-w-4xl flex-col items-center px-4 py-12 text-center sm:py-20">
       <p className="font-mono text-xs uppercase tracking-[0.4em] text-accent glow-accent">
@@ -36,58 +47,113 @@ export function TitleScreen({
       </h1>
       <p className="mt-6 max-w-xl text-muted-foreground">
         Eres una operadora freelance. Cinco corporaciones esconden sus secretos tras cerraduras
-        cifradas. Deduce cada código antes de que el rastreo te alcance.
+        cifradas. Elige tu dificultad y deduce cada código antes de que el rastreo te alcance.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <button className={`${btnAccent} px-8 py-3 text-base`} onClick={() => onStart(0)}>
-          INICIAR OPERACIÓN
-        </button>
         <button className={btnPrimary} onClick={onHelp}>
           Cómo jugar
         </button>
       </div>
-
-      <section className="panel mt-12 w-full p-4 text-left" aria-labelledby="misiones">
-        <div className="flex items-center justify-between">
-          <h2 id="misiones" className="font-mono text-xs uppercase tracking-widest text-primary">
-            Contratos disponibles
-          </h2>
-          <span className="font-mono text-xs text-muted-foreground">
-            Récord: {loaded ? save.bestScore.toLocaleString("es") : "…"}
-          </span>
-        </div>
-        <ol className="mt-3 grid gap-2 sm:grid-cols-5">
-          {MISSIONS.map((m, i) => {
-            const locked = m.id > save.unlocked;
-            return (
-              <li key={m.id}>
-                <button
-                  disabled={locked || !loaded}
-                  onClick={() => onStart(i)}
-                  className="h-full w-full border border-border p-3 text-left transition-colors hover:border-accent disabled:cursor-not-allowed disabled:opacity-40"
-                  aria-label={
-                    locked ? `Misión ${m.id} bloqueada` : `Jugar misión ${m.id}: ${m.name}`
-                  }
-                >
-                  <span className="font-mono text-xs text-muted-foreground">
-                    0{m.id} {locked ? "· BLOQUEADA" : ""}
-                  </span>
-                  <span className="mt-1 block font-semibold text-foreground">{m.name}</span>
-                  <span className="block font-mono text-xs text-muted-foreground">
-                    {m.codeLength} díg · {m.maxAttempts} int
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-        <button
-          onClick={onReset}
-          className="mt-4 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-destructive hover:underline"
-        >
-          Reiniciar progreso
-        </button>
-      </section>
+      {!showMissions ? (
+        <section className="panel mt-8 w-full p-5 text-left sm:p-6" aria-labelledby="dificultades">
+          <div className="flex items-center justify-between gap-3">
+            <h2
+              id="dificultades"
+              className="font-mono text-xs uppercase tracking-widest text-primary"
+            >
+              Elige tu nivel
+            </h2>
+            <span className="font-mono text-xs text-muted-foreground">3 niveles</span>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Selecciona una dificultad para consultar sus contratos y empezar a jugar.
+          </p>
+          <div
+            className="mt-5 grid gap-3 sm:grid-cols-3"
+            role="group"
+            aria-label="Seleccionar dificultad"
+          >
+            {DIFFICULTIES.map((level) => (
+              <button
+                key={level.id}
+                type="button"
+                aria-label={"Elegir dificultad " + level.label}
+                onClick={() => {
+                  onDifficultyChange(level.id);
+                  setShowMissions(true);
+                }}
+                className={
+                  "group min-h-36 border p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
+                  (difficulty === level.id ? "border-primary/60" : "border-border")
+                }
+              >
+                <span className="block font-display text-xl font-bold text-primary">
+                  {level.label}
+                </span>
+                <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">
+                  {level.description}
+                </span>
+                <span className="mt-5 block font-mono text-xs uppercase tracking-widest text-accent">
+                  Ver misiones ↗
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="panel mt-8 w-full p-4 text-left sm:p-6" aria-labelledby="misiones">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                Dificultad seleccionada
+              </p>
+              <h2 id="misiones" className="mt-1 font-display text-2xl font-bold text-primary">
+                {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · Misiones
+              </h2>
+            </div>
+            <span className="font-mono text-xs text-muted-foreground">
+              Récord: {loaded ? progress.bestScore.toLocaleString("es") : "…"}
+            </span>
+          </div>
+          <button className={btnGhost + " mt-4"} onClick={() => setShowMissions(false)}>
+            ← Volver a dificultades
+          </button>
+          <p className="mt-4 font-mono text-xs uppercase tracking-widest text-accent">
+            {missions.length} misiones · Completa una para desbloquear la siguiente
+          </p>
+          <ol className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            {missions.map((m, i) => {
+              const locked = m.id > progress.unlocked;
+              return (
+                <li key={m.id}>
+                  <button
+                    disabled={locked || !loaded}
+                    onClick={() => onStart(i)}
+                    className="h-full w-full border border-border p-3 text-left transition-colors hover:border-accent disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label={
+                      locked ? `Misión ${m.id} bloqueada` : `Jugar misión ${m.id}: ${m.name}`
+                    }
+                  >
+                    <span className="font-mono text-xs text-muted-foreground">
+                      0{m.id} {locked ? "· BLOQUEADA" : ""}
+                    </span>
+                    <span className="mt-1 block font-semibold text-foreground">{m.name}</span>
+                    <span className="block font-mono text-xs text-muted-foreground">
+                      {m.codeLength} díg · {m.maxAttempts} int · {Math.floor(m.timeLimit / 60)} min
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+          <button
+            onClick={onReset}
+            className="mt-4 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-destructive hover:underline"
+          >
+            Reiniciar progreso
+          </button>
+        </section>
+      )}
     </main>
   );
 }
@@ -101,7 +167,8 @@ export function GameScreen({
   dispatch: Dispatch<Action>;
   sound: boolean;
 }) {
-  const m = MISSIONS[s.missionIndex]!;
+  const missions = getMissionsForDifficulty(s.difficulty);
+  const m = missions[s.missionIndex]!;
   const attemptsLeft = m.maxAttempts - s.attempts.length;
   const lowTime = s.timeLeft <= 30;
   const logRef = useRef<HTMLDivElement>(null);
@@ -123,7 +190,7 @@ export function GameScreen({
           <p className="font-mono text-xs text-muted-foreground">{m.corp}</p>
         </div>
         <ol className="flex gap-1" aria-label="Progreso">
-          {MISSIONS.map((x, i) => (
+          {missions.map((x, i) => (
             <li
               key={x.id}
               className={`h-1.5 flex-1 ${i < s.missionIndex ? "bg-accent" : i === s.missionIndex ? "bg-primary" : "bg-muted"}`}
@@ -334,7 +401,7 @@ export function Key({
   sound: boolean;
 }) {
   const used = s.input.includes(d);
-  const full = s.input.length >= MISSIONS[s.missionIndex]!.codeLength;
+  const full = s.input.length >= getMissionsForDifficulty(s.difficulty)[s.missionIndex]!.codeLength;
   return (
     <button
       className="h-14 border border-border font-mono text-xl text-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-30"
@@ -373,7 +440,7 @@ export function Stat({
 }
 
 export function Overlay({ s, dispatch }: { s: GameState; dispatch: Dispatch<Action> }) {
-  const m = MISSIONS[s.missionIndex]!;
+  const m = getMissionsForDifficulty(s.difficulty)[s.missionIndex]!;
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     ref.current?.focus();
@@ -397,7 +464,7 @@ export function Overlay({ s, dispatch }: { s: GameState; dispatch: Dispatch<Acti
     );
   if (s.phase === "won" && s.lastScore) {
     const b = s.lastScore;
-    const last = s.missionIndex === MISSIONS.length - 1;
+    const last = s.missionIndex === getMissionsForDifficulty(s.difficulty).length - 1;
     body = (
       <>
         <h2 className="font-display text-3xl font-bold text-accent glow-accent">

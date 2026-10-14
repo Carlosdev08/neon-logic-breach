@@ -14,6 +14,16 @@ export function createRng(seed: number): Rng {
   };
 }
 
+export type Difficulty = "facil" | "medio" | "avanzado";
+export const DIFFICULTIES: { id: Difficulty; label: string; description: string }[] = [
+  { id: "facil", label: "Fácil", description: "Más tiempo, más intentos y más pistas." },
+  { id: "medio", label: "Medio", description: "Un reto equilibrado para afinar tu lógica." },
+  {
+    id: "avanzado",
+    label: "Avanzado",
+    description: "Menos tiempo, menos intentos y códigos más largos.",
+  },
+];
 export interface Mission {
   id: number;
   name: string;
@@ -77,7 +87,26 @@ export const MISSIONS: Mission[] = [
     maxHints: 1,
   },
 ];
-
+export function getMissionsForDifficulty(difficulty: Difficulty): Mission[] {
+  return MISSIONS.map((mission, index) => {
+    if (difficulty === "medio") return { ...mission };
+    if (difficulty === "facil")
+      return {
+        ...mission,
+        codeLength: index < 3 ? 3 : 4,
+        maxAttempts: mission.maxAttempts + 3,
+        timeLimit: Math.round(mission.timeLimit * 1.5),
+        maxHints: Math.min(4, mission.maxHints + 1),
+      };
+    return {
+      ...mission,
+      codeLength: index < 3 ? 5 : 6,
+      maxAttempts: Math.max(4, mission.maxAttempts - 2),
+      timeLimit: Math.round(mission.timeLimit * 0.7),
+      maxHints: Math.max(1, mission.maxHints - 1),
+    };
+  });
+}
 /** Secret with unique digits 0-9 (Fisher–Yates over the digit pool). */
 export function generateSecret(length: number, rng: Rng): number[] {
   if (length < 1 || length > 10) throw new Error("Longitud inválida");

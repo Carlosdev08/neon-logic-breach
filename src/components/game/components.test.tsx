@@ -12,11 +12,15 @@ describe("game UI components", () => {
         save={DEFAULT_SAVE}
         loaded
         onStart={onStart}
+        onDifficultyChange={vi.fn()}
         onReset={vi.fn()}
         onHelp={vi.fn()}
       />,
     );
     expect(screen.getByRole("heading", { name: "NEON BREACH" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Jugar misión 1/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Medio" }));
+    expect(screen.getByRole("heading", { name: "Medio · Misiones" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Jugar misión 1/ }));
     expect(onStart).toHaveBeenCalledWith(0);
   });
@@ -29,13 +33,17 @@ describe("game UI components", () => {
         save={{ ...DEFAULT_SAVE, unlocked: 1 }}
         loaded
         onStart={vi.fn()}
+        onDifficultyChange={vi.fn()}
         onReset={onReset}
         onHelp={onHelp}
       />,
     );
+    expect(screen.queryByRole("button", { name: /Misión 2 bloqueada/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Medio" }));
     expect(screen.getByRole("button", { name: /Misión 2 bloqueada/ })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Cómo jugar" }));
     fireEvent.click(screen.getByRole("button", { name: "Reiniciar progreso" }));
+    fireEvent.click(screen.getByRole("button", { name: "← Volver a dificultades" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cómo jugar" }));
     expect(onHelp).toHaveBeenCalledOnce();
     expect(onReset).toHaveBeenCalledOnce();
   });
