@@ -29,6 +29,9 @@ describe("scoreGuess", () => {
     expect(scoreGuess([1, 2, 3, 4], [4, 3, 2, 1])).toEqual({ exact: 0, misplaced: 4 });
     expect(scoreGuess([1, 2, 3, 4], [1, 5, 2, 6])).toEqual({ exact: 1, misplaced: 1 });
   });
+  it("scores 1029 against 1928 as two exact and one misplaced", () => {
+    expect(scoreGuess([1, 9, 2, 8], [1, 0, 2, 9])).toEqual({ exact: 2, misplaced: 1 });
+  });
   it("does not double count repeated digits", () => {
     expect(scoreGuess([1, 2, 3, 4], [2, 2, 2, 2])).toEqual({ exact: 1, misplaced: 0 });
   });
