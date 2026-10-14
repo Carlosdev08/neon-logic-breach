@@ -39,7 +39,8 @@ describe("NeonBreach application", () => {
   it("starts a mission, accepts keyboard input, and supports pause/resume", async () => {
     render(<NeonBreach />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "INICIAR OPERACIÓN" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Elegir dificultad Medio" }));
+    fireEvent.click(screen.getByRole("button", { name: /Jugar misión 1/ }));
     expect(screen.getByRole("heading", { name: "Archivo Fantasma" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Cerradura" })).toBeInTheDocument();
 
