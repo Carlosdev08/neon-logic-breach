@@ -150,6 +150,8 @@ export type Hint =
   | { kind: "present"; digit: number }
   | { kind: "position"; index: number; digit: number };
 
+export const HINT_PENALTY = 150;
+
 export const HINT_PENALTIES: Record<Difficulty, number[]> = {
   facil: [100, 200, 300],
   medio: [150, 250, 400],
