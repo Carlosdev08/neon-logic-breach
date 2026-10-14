@@ -1,30 +1,32 @@
-const BEST_SCORE_KEY = "neon-breach:best-score";
-const UNLOCKED_KEY = "neon-breach:unlocked-mission";
+const KEY = "neon-breach:v1";
 
-export function readBestScore(): number {
-  if (typeof localStorage === "undefined") return 0;
-  const value = Number(localStorage.getItem(BEST_SCORE_KEY) ?? 0);
-  return Number.isFinite(value) && value >= 0 ? value : 0;
+export interface SaveData {
+  bestScore: number;
+  unlocked: number; // highest mission id the player may start
+  sound: boolean;
 }
 
-export function saveBestScore(score: number): void {
-  if (typeof localStorage === "undefined" || !Number.isFinite(score)) return;
-  localStorage.setItem(BEST_SCORE_KEY, String(Math.max(readBestScore(), score)));
+export const DEFAULT_SAVE: SaveData = { bestScore: 0, unlocked: 1, sound: true };
+
+export function loadSave(): SaveData {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return DEFAULT_SAVE;
+    const p = JSON.parse(raw) as Partial<SaveData>;
+    return {
+      bestScore: typeof p.bestScore === "number" ? p.bestScore : 0,
+      unlocked: typeof p.unlocked === "number" ? Math.min(5, Math.max(1, p.unlocked)) : 1,
+      sound: typeof p.sound === "boolean" ? p.sound : true,
+    };
+  } catch {
+    return DEFAULT_SAVE;
+  }
 }
 
-export function readUnlockedMission(): number {
-  if (typeof localStorage === "undefined") return 0;
-  const value = Number(localStorage.getItem(UNLOCKED_KEY) ?? 0);
-  return Number.isInteger(value) ? Math.max(0, Math.min(4, value)) : 0;
-}
-
-export function saveUnlockedMission(mission: number): void {
-  if (typeof localStorage === "undefined" || !Number.isInteger(mission)) return;
-  localStorage.setItem(UNLOCKED_KEY, String(Math.max(readUnlockedMission(), Math.max(0, Math.min(4, mission)))));
-}
-
-export function resetProgress(): void {
-  if (typeof localStorage === "undefined") return;
-  localStorage.removeItem(BEST_SCORE_KEY);
-  localStorage.removeItem(UNLOCKED_KEY);
+export function writeSave(data: SaveData) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  } catch {
+    /* storage unavailable: progress simply isn't persisted */
+  }
 }
