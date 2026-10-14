@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode, type Dispatch } from "react";
+import { useEffect, useRef, useState, type ReactNode, type Dispatch } from "react";
 import {
   HINT_PENALTY,
   DIFFICULTIES,
@@ -36,6 +36,7 @@ export function TitleScreen({
   const difficulty = save.difficulty;
   const missions = getMissionsForDifficulty(difficulty);
   const progress = save.progress[difficulty];
+  const [showMissions, setShowMissions] = useState(false);
   return (
     <main className="mx-auto flex max-w-4xl flex-col items-center px-4 py-12 text-center sm:py-20">
       <p className="font-mono text-xs uppercase tracking-[0.4em] text-accent glow-accent">
@@ -48,45 +49,34 @@ export function TitleScreen({
         Eres una operadora freelance. Cinco corporaciones esconden sus secretos tras cerraduras
         cifradas. Elige tu dificultad y deduce cada código antes de que el rastreo te alcance.
       </p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <button className={`${btnAccent} px-8 py-3 text-base`} onClick={() => onStart(0)}>
-          INICIAR OPERACIÓN
-        </button>
-        <button className={btnPrimary} onClick={onHelp}>
-          Cómo jugar
-        </button>
-      </div>
-
-      <section className="panel mt-8 w-full p-4 text-left" aria-labelledby="misiones">
-        <div className="flex items-center justify-between">
-          <h2 id="misiones" className="font-mono text-xs uppercase tracking-widest text-primary">
-            Contratos disponibles
-          </h2>
-          <span className="font-mono text-xs text-muted-foreground">
-            Récord: {loaded ? progress.bestScore.toLocaleString("es") : "…"}
-          </span>
-        </div>
-        <div
-          className="mt-4 grid gap-2 sm:grid-cols-3"
-          role="group"
-          aria-label="Seleccionar dificultad"
-        >
-          {DIFFICULTIES.map((level) => (
-            <button
-              key={level.id}
-              type="button"
-              aria-pressed={difficulty === level.id}
-              onClick={() => onDifficultyChange(level.id)}
-              className={`border p-3 text-left transition-colors ${difficulty === level.id ? "border-primary bg-primary/10" : "border-border hover:border-accent"}`}
-            >
-              <span className="block font-display font-bold text-primary">{level.label}</span>
-              <span className="mt-1 block text-xs text-muted-foreground">{level.description}</span>
-            </button>
-          ))}
-        </div>
-        <p className="mt-4 font-mono text-xs uppercase tracking-widest text-accent">
-          {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · 5 misiones
-        </p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3"><button className={btnPrimary} onClick={onHelp}>Cómo jugar</button></div>
+      {!showMissions ? (
+        <section className="panel mt-8 w-full p-5 text-left sm:p-6" aria-labelledby="dificultades">
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="dificultades" className="font-mono text-xs uppercase tracking-widest text-primary">Elige tu nivel</h2>
+            <span className="font-mono text-xs text-muted-foreground">3 niveles</span>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">Selecciona una dificultad para consultar sus contratos y empezar a jugar.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3" role="group" aria-label="Seleccionar dificultad">
+            {DIFFICULTIES.map((level) => (
+              <button key={level.id} type="button" aria-label={"Elegir dificultad " + level.label}
+                onClick={() => { onDifficultyChange(level.id); setShowMissions(true); }}
+                className={"group min-h-36 border p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " + (difficulty === level.id ? "border-primary/60" : "border-border")}>
+                <span className="block font-display text-xl font-bold text-primary">{level.label}</span>
+                <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">{level.description}</span>
+                <span className="mt-5 block font-mono text-xs uppercase tracking-widest text-accent">Ver misiones ↗</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : (
+      <section className="panel mt-8 w-full p-4 text-left sm:p-6" aria-labelledby="misiones">
+        <div className="flex flex-wrap items-center justify-between gap-3"><div>
+          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Dificultad seleccionada</p>
+          <h2 id="misiones" className="mt-1 font-display text-2xl font-bold text-primary">{DIFFICULTIES.find((d) => d.id === difficulty)?.label} · Misiones</h2>
+        </div><span className="font-mono text-xs text-muted-foreground">Récord: {loaded ? progress.bestScore.toLocaleString("es") : "…"}</span></div>
+        <button className={btnGhost + " mt-4"} onClick={() => setShowMissions(false)}>← Volver a dificultades</button>
+        <p className="mt-4 font-mono text-xs uppercase tracking-widest text-accent">{missions.length} misiones · Completa una para desbloquear la siguiente</p>
         <ol className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           {missions.map((m, i) => {
             const locked = m.id > progress.unlocked;
@@ -119,6 +109,7 @@ export function TitleScreen({
           Reiniciar progreso
         </button>
       </section>
+      )}
     </main>
   );
 }
