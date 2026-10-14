@@ -50,7 +50,9 @@ describe("NeonBreach application", () => {
     expect(screen.getByLabelText("Código actual: 7")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Pista −150/ }));
-    expect(await screen.findByText(/El \\d no está en el código|Posición \\d = \\d/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/El \\d no está en el código|Posición \\d = \\d/),
+    ).toBeInTheDocument();
     expect(screen.getByText("Pistas 1/3")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Pista −150/ })).toBeEnabled();
   });
