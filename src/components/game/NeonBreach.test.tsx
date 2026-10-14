@@ -15,7 +15,7 @@ describe("NeonBreach application", () => {
     expect(screen.getByRole("group", { name: "Seleccionar dificultad" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Fácil/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Elegir dificultad Medio" })).toBeInTheDocument();
-    expect(await screen.findByText(/Récord:/)).toBeInTheDocument();
+    expect(await screen.findByText(/RÉCORD/i)).toBeInTheDocument();
 
     const helpButtons = screen.getAllByRole("button", { name: "Cómo jugar" });
     fireEvent.click(helpButtons[helpButtons.length - 1]!);
