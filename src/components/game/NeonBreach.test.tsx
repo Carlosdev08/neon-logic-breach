@@ -12,6 +12,9 @@ describe("NeonBreach application", () => {
     render(<NeonBreach />);
 
     expect(screen.getByRole("heading", { name: "NEON BREACH" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Seleccionar dificultad" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Fácil/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Medio/ })).toHaveAttribute("aria-pressed", "true");
     expect(await screen.findByText(/Récord:/)).toBeInTheDocument();
 
     const helpButtons = screen.getAllByRole("button", { name: "Cómo jugar" });
@@ -22,6 +25,15 @@ describe("NeonBreach application", () => {
     await waitFor(() =>
       expect(screen.queryByRole("dialog", { name: "Cómo jugar" })).not.toBeInTheDocument(),
     );
+  });
+
+  it("changes difficulty and shows different mission rules", async () => {
+    render(<NeonBreach />);
+    fireEvent.click(await screen.findByRole("button", { name: /Fácil/ }));
+    expect(screen.getByRole("button", { name: /Fácil/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("3 díg · 13 int · 4 min")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Avanzado/ }));
+    expect(screen.getByText("5 díg · 8 int · 2 min")).toBeInTheDocument();
   });
 
   it("starts a mission, accepts keyboard input, and supports pause/resume", async () => {
@@ -59,7 +71,7 @@ describe("NeonBreach application", () => {
 
   it("confirms progress reset rather than clearing it immediately", async () => {
     localStorage.setItem(
-      "neon-breach:v1",
+      "neon-breach:v2",
       JSON.stringify({ bestScore: 900, unlocked: 3, sound: false }),
     );
     render(<NeonBreach />);
