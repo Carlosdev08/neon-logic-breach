@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { createRng, generateSecret, scoreGuess, nextHint, computeScore, MISSIONS, type Hint } from "./logic";
+import {
+  createRng,
+  generateSecret,
+  scoreGuess,
+  nextHint,
+  computeScore,
+  MISSIONS,
+  type Hint,
+} from "./logic";
 
 describe("generateSecret", () => {
   it("produces unique digits of the requested length", () => {
@@ -49,7 +57,6 @@ describe("computeScore", () => {
   });
 });
 
-
 describe("generateSecret boundaries", () => {
   it("rejects lengths outside the available digit range", () => {
     expect(() => generateSecret(0, createRng(1))).toThrow("Longitud inválida");
@@ -78,10 +85,30 @@ describe("nextHint exhaustion", () => {
 
 describe("computeScore boundaries", () => {
   it("never returns a negative final score", () => {
-    expect(computeScore({ mission: MISSIONS[0]!, attemptsUsed: 100, timeLeft: 0, hintsUsed: 100, streak: 0 }).total).toBe(0);
+    expect(
+      computeScore({
+        mission: MISSIONS[0]!,
+        attemptsUsed: 100,
+        timeLeft: 0,
+        hintsUsed: 100,
+        streak: 0,
+      }).total,
+    ).toBe(0);
   });
   it("adds time, attempts, and streak bonuses predictably", () => {
-    const score = computeScore({ mission: MISSIONS[0]!, attemptsUsed: 2, timeLeft: 10, hintsUsed: 0, streak: 2 });
-    expect(score).toMatchObject({ base: 500, timeBonus: 50, attemptBonus: 800, streakBonus: 500, total: 1850 });
+    const score = computeScore({
+      mission: MISSIONS[0]!,
+      attemptsUsed: 2,
+      timeLeft: 10,
+      hintsUsed: 0,
+      streak: 2,
+    });
+    expect(score).toMatchObject({
+      base: 500,
+      timeBonus: 50,
+      attemptBonus: 800,
+      streakBonus: 500,
+      total: 1850,
+    });
   });
 });

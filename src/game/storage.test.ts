@@ -23,7 +23,10 @@ describe("save storage", () => {
   });
 
   it("normalizes invalid fields and clamps unlocked mission", () => {
-    localStorage.setItem("neon-breach:v1", JSON.stringify({ bestScore: "bad", unlocked: 100, sound: "yes" }));
+    localStorage.setItem(
+      "neon-breach:v1",
+      JSON.stringify({ bestScore: "bad", unlocked: 100, sound: "yes" }),
+    );
     expect(loadSave()).toEqual({ bestScore: 0, unlocked: 5, sound: true });
   });
 

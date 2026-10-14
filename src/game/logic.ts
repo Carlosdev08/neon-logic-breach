@@ -26,11 +26,56 @@ export interface Mission {
 }
 
 export const MISSIONS: Mission[] = [
-  { id: 1, name: "Archivo Fantasma", corp: "Kurogane Logística", objective: "Extrae el registro de envíos borrado del servidor de archivo.", codeLength: 4, maxAttempts: 10, timeLimit: 180, maxHints: 3 },
-  { id: 2, name: "Núcleo Helix", corp: "Helix Biogenética", objective: "Desactiva el cortafuegos del núcleo de investigación genética.", codeLength: 4, maxAttempts: 8, timeLimit: 150, maxHints: 2 },
-  { id: 3, name: "Protocolo Ónix", corp: "Ónix Seguridad Privada", objective: "Anula el protocolo de vigilancia sobre el distrito 9.", codeLength: 4, maxAttempts: 7, timeLimit: 120, maxHints: 2 },
-  { id: 4, name: "Bóveda Prisma", corp: "Banco Prisma", objective: "Abre la bóveda de datos cifrados con una llave de 5 dígitos.", codeLength: 5, maxAttempts: 9, timeLimit: 150, maxHints: 2 },
-  { id: 5, name: "Proyecto Eclipse", corp: "Consorcio Eclipse", objective: "Expón el proyecto secreto antes de que se active el apagón.", codeLength: 5, maxAttempts: 8, timeLimit: 120, maxHints: 1 },
+  {
+    id: 1,
+    name: "Archivo Fantasma",
+    corp: "Kurogane Logística",
+    objective: "Extrae el registro de envíos borrado del servidor de archivo.",
+    codeLength: 4,
+    maxAttempts: 10,
+    timeLimit: 180,
+    maxHints: 3,
+  },
+  {
+    id: 2,
+    name: "Núcleo Helix",
+    corp: "Helix Biogenética",
+    objective: "Desactiva el cortafuegos del núcleo de investigación genética.",
+    codeLength: 4,
+    maxAttempts: 8,
+    timeLimit: 150,
+    maxHints: 2,
+  },
+  {
+    id: 3,
+    name: "Protocolo Ónix",
+    corp: "Ónix Seguridad Privada",
+    objective: "Anula el protocolo de vigilancia sobre el distrito 9.",
+    codeLength: 4,
+    maxAttempts: 7,
+    timeLimit: 120,
+    maxHints: 2,
+  },
+  {
+    id: 4,
+    name: "Bóveda Prisma",
+    corp: "Banco Prisma",
+    objective: "Abre la bóveda de datos cifrados con una llave de 5 dígitos.",
+    codeLength: 5,
+    maxAttempts: 9,
+    timeLimit: 150,
+    maxHints: 2,
+  },
+  {
+    id: 5,
+    name: "Proyecto Eclipse",
+    corp: "Consorcio Eclipse",
+    objective: "Expón el proyecto secreto antes de que se active el apagón.",
+    codeLength: 5,
+    maxAttempts: 8,
+    timeLimit: 120,
+    maxHints: 1,
+  },
 ];
 
 /** Secret with unique digits 0-9 (Fisher–Yates over the digit pool). */
@@ -72,17 +117,20 @@ export function hasUniqueDigits(guess: number[]): boolean {
 }
 
 export type Hint =
-  | { kind: "position"; index: number; digit: number }
-  | { kind: "absent"; digit: number };
+  { kind: "position"; index: number; digit: number } | { kind: "absent"; digit: number };
 
 /** Next hint: alternates "digit absent" and "digit at position", never repeating. */
 export function nextHint(secret: number[], given: Hint[], rng: Rng): Hint | null {
   const wantAbsent = given.length % 2 === 0;
-  const knownPos = new Set(given.filter((h) => h.kind === "position").map((h) => (h as { index: number }).index));
+  const knownPos = new Set(
+    given.filter((h) => h.kind === "position").map((h) => (h as { index: number }).index),
+  );
   const knownAbsent = new Set(given.filter((h) => h.kind === "absent").map((h) => h.digit));
-  const absentPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => !secret.includes(d) && !knownAbsent.has(d));
+  const absentPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(
+    (d) => !secret.includes(d) && !knownAbsent.has(d),
+  );
   const posPool = secret.map((_, i) => i).filter((i) => !knownPos.has(i));
-  const pick = <T,>(arr: T[]) => arr[Math.floor(rng() * arr.length)]!;
+  const pick = <T>(arr: T[]) => arr[Math.floor(rng() * arr.length)]!;
   if (wantAbsent && absentPool.length) return { kind: "absent", digit: pick(absentPool) };
   if (posPool.length) {
     const index = pick(posPool);
@@ -111,7 +159,13 @@ export interface ScoreBreakdown {
   total: number;
 }
 
-export function computeScore({ mission, attemptsUsed, timeLeft, hintsUsed, streak }: ScoreInput): ScoreBreakdown {
+export function computeScore({
+  mission,
+  attemptsUsed,
+  timeLeft,
+  hintsUsed,
+  streak,
+}: ScoreInput): ScoreBreakdown {
   const base = 500 * mission.id;
   const timeBonus = timeLeft * 5;
   const attemptBonus = Math.max(0, mission.maxAttempts - attemptsUsed) * 100;

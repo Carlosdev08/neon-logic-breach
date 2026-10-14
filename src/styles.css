@@ -104,7 +104,9 @@
 @utility panel {
   background: color-mix(in oklab, var(--card) 85%, transparent);
   border: 1px solid var(--border);
-  box-shadow: inset 0 0 30px color-mix(in oklab, var(--primary) 6%, transparent), 0 0 0 1px color-mix(in oklab, var(--primary) 5%, transparent);
+  box-shadow:
+    inset 0 0 30px color-mix(in oklab, var(--primary) 6%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--primary) 5%, transparent);
 }
 @utility scanlines {
   &::after {
@@ -112,22 +114,65 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background: repeating-linear-gradient(to bottom, transparent 0 2px, color-mix(in oklab, var(--background) 45%, transparent) 2px 3px);
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      color-mix(in oklab, var(--background) 45%, transparent) 2px 3px
+    );
     z-index: 50;
   }
 }
 @utility neon-bg {
   background:
-    radial-gradient(ellipse at 15% 0%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 55%),
-    radial-gradient(ellipse at 90% 100%, color-mix(in oklab, var(--destructive) 12%, transparent), transparent 50%),
+    radial-gradient(
+      ellipse at 15% 0%,
+      color-mix(in oklab, var(--primary) 14%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 90% 100%,
+      color-mix(in oklab, var(--destructive) 12%, transparent),
+      transparent 50%
+    ),
     var(--background);
 }
 
-@keyframes flicker { 0%,100% { opacity: 1 } 92% { opacity: 1 } 93% { opacity: .6 } 94% { opacity: 1 } }
-@utility animate-flicker { animation: flicker 4s infinite; }
-@keyframes rise { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
-@utility animate-rise { animation: rise .25s ease-out; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.6;
+  }
+  94% {
+    opacity: 1;
+  }
+}
+@utility animate-flicker {
+  animation: flicker 4s infinite;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-rise {
+  animation: rise 0.25s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+  }
+}
 
 @layer base {
   * {

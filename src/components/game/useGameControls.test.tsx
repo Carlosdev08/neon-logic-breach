@@ -3,7 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useGameKeyboard, useGameTimer } from "./useGameControls";
 import type { Action, Phase } from "@/game/reducer";
 
-function KeyboardHarness(props: { phase: Phase; helpOpen?: boolean; resetConfirmationOpen?: boolean; dispatch: (action: Action) => void }) {
+function KeyboardHarness(props: {
+  phase: Phase;
+  helpOpen?: boolean;
+  resetConfirmationOpen?: boolean;
+  dispatch: (action: Action) => void;
+}) {
   useGameKeyboard({
     phase: props.phase,
     dispatch: props.dispatch,

@@ -7,7 +7,15 @@ import { GameScreen, Key, Modal, Overlay, Stat, TitleScreen } from "@/components
 describe("game UI components", () => {
   it("renders the title screen and starts the selected mission", () => {
     const onStart = vi.fn();
-    render(<TitleScreen save={DEFAULT_SAVE} loaded onStart={onStart} onReset={vi.fn()} onHelp={vi.fn()} />);
+    render(
+      <TitleScreen
+        save={DEFAULT_SAVE}
+        loaded
+        onStart={onStart}
+        onReset={vi.fn()}
+        onHelp={vi.fn()}
+      />,
+    );
     expect(screen.getByRole("heading", { name: "NEON BREACH" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Jugar misión 1/ }));
     expect(onStart).toHaveBeenCalledWith(0);
@@ -16,7 +24,15 @@ describe("game UI components", () => {
   it("keeps locked missions disabled and exposes help/reset actions", () => {
     const onHelp = vi.fn();
     const onReset = vi.fn();
-    render(<TitleScreen save={{ ...DEFAULT_SAVE, unlocked: 1 }} loaded onStart={vi.fn()} onReset={onReset} onHelp={onHelp} />);
+    render(
+      <TitleScreen
+        save={{ ...DEFAULT_SAVE, unlocked: 1 }}
+        loaded
+        onStart={vi.fn()}
+        onReset={onReset}
+        onHelp={onHelp}
+      />,
+    );
     expect(screen.getByRole("button", { name: /Misión 2 bloqueada/ })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Cómo jugar" }));
     fireEvent.click(screen.getByRole("button", { name: "Reiniciar progreso" }));
@@ -25,7 +41,11 @@ describe("game UI components", () => {
   });
 
   it("shows stat values and applies danger styling", () => {
-    render(<dl><Stat label="Tiempo" value="0:20" tone="danger" /></dl>);
+    render(
+      <dl>
+        <Stat label="Tiempo" value="0:20" tone="danger" />
+      </dl>,
+    );
     expect(screen.getByText("Tiempo")).toBeInTheDocument();
     expect(screen.getByText("0:20")).toHaveClass("text-destructive");
   });
@@ -63,7 +83,11 @@ describe("game UI components", () => {
 
   it("closes a modal with its close button and Escape key", () => {
     const onClose = vi.fn();
-    render(<Modal title="Ayuda de prueba" onClose={onClose}>Contenido</Modal>);
+    render(
+      <Modal title="Ayuda de prueba" onClose={onClose}>
+        Contenido
+      </Modal>,
+    );
     expect(screen.getByRole("dialog", { name: "Ayuda de prueba" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Cerrar" }));
     expect(onClose).toHaveBeenCalledOnce();

@@ -80,7 +80,6 @@ export function consumeLastCapturedError(): unknown {
   return error;
 }
 
-
 /** Report application errors locally without sending telemetry to third parties. */
 export function reportError(error: unknown, context: Record<string, unknown> = {}): void {
   console.error("[NEON BREACH]", context, error instanceof Error ? error : describeError(error));
