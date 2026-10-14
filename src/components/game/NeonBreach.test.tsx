@@ -57,7 +57,8 @@ describe("NeonBreach application", () => {
   it("prevents duplicate digits and applies the hint penalty visibly", async () => {
     render(<NeonBreach />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "INICIAR OPERACIÓN" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Elegir dificultad Medio" }));
+    fireEvent.click(screen.getByRole("button", { name: /Jugar misión 1/ }));
     const seven = screen.getByRole("button", { name: "7", exact: true });
     fireEvent.click(seven);
     expect(seven).toBeDisabled();
