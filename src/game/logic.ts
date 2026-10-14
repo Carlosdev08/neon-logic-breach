@@ -150,7 +150,10 @@ export type Hint =
 
 /** Next hint: alternates "digit absent" and "digit at position", never repeating. */
 export function nextHint(secret: number[], given: Hint[], rng: Rng): Hint | null {
-  const wantAbsent = given.length % 2 === 0;
+  // Progressive hints: first eliminate a digit, then reveal exact positions.
+  // Later hints stay constructive instead of alternating back to weaker clues.
+  const hasAbsentHint = given.some((hint) => hint.kind === "absent");
+  const wantAbsent = !hasAbsentHint;
   const knownPos = new Set(
     given.filter((h) => h.kind === "position").map((h) => (h as { index: number }).index),
   );
