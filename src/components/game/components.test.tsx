@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_SAVE } from "@/game/storage";
 import { initialState, reducer } from "@/game/reducer";
@@ -46,6 +46,22 @@ describe("game UI components", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cómo jugar" }));
     expect(onHelp).toHaveBeenCalledOnce();
     expect(onReset).toHaveBeenCalledOnce();
+  });
+
+  it("renders one opaque, readable victory score breakdown with a correct total", () => {
+    const playing = reducer(initialState, { type: "START", missionIndex: 0, seed: 123 });
+    const won = reducer({ ...playing, input: playing.secret }, { type: "SUBMIT" });
+    expect(won.phase).toBe("won");
+    expect(won.lastScore).not.toBeNull();
+
+    render(<Overlay s={won} dispatch={vi.fn()} />);
+    const breakdown = screen.getByLabelText("Desglose de puntuación");
+    for (const label of ["Base", "Tiempo", "Intentos", "Racha", "Pistas", "Total"]) {
+      expect(within(breakdown).getAllByText(label)).toHaveLength(1);
+    }
+    expect(within(breakdown).getByText(String(won.lastScore!.total))).toBeInTheDocument();
+    expect(screen.getByRole("dialog")).toHaveClass("bg-background");
+    expect(breakdown).toHaveClass("grid-cols-[1fr_auto]");
   });
 
   it("shows stat values and applies danger styling", () => {
