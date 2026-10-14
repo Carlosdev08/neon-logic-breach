@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NeonBreach } from "./NeonBreach";
 
@@ -36,7 +36,7 @@ describe("NeonBreach application", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Pausa" }));
     expect(screen.getByRole("heading", { name: "EN PAUSA" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Reanudar" }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Reanudar" }));
     expect(screen.queryByRole("heading", { name: "EN PAUSA" })).not.toBeInTheDocument();
   });
 
