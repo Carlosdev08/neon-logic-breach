@@ -146,39 +146,48 @@ export function hasUniqueDigits(guess: number[]): boolean {
 }
 
 export type Hint =
-  { kind: "position"; index: number; digit: number } | { kind: "absent"; digit: number };
+  | { kind: "absent"; digit: number }
+  | { kind: "present"; digit: number }
+  | { kind: "position"; index: number; digit: number };
 
-/** Next hint: alternates "digit absent" and "digit at position", never repeating. */
+export const HINT_PENALTIES: Record<Difficulty, number[]> = {
+  facil: [100, 200, 300],
+  medio: [150, 250, 400],
+  avanzado: [250, 400, 600],
+};
+
+export function hintPenaltyFor(hints: Hint[], difficulty: Difficulty): number {
+  const penalties = HINT_PENALTIES[difficulty];
+  return hints.reduce((total, _hint, index) => total + (penalties[index] ?? penalties[penalties.length - 1]!), 0);
+}
+
+/** Progressive hints: eliminate a digit, identify a digit, then reveal exact positions. */
 export function nextHint(secret: number[], given: Hint[], rng: Rng): Hint | null {
-  // Progressive hints: first eliminate a digit, then reveal exact positions.
-  // Later hints stay constructive instead of alternating back to weaker clues.
-  const hasAbsentHint = given.some((hint) => hint.kind === "absent");
-  const wantAbsent = !hasAbsentHint;
-  const knownPos = new Set(
-    given.filter((h) => h.kind === "position").map((h) => (h as { index: number }).index),
-  );
   const knownAbsent = new Set(given.filter((h) => h.kind === "absent").map((h) => h.digit));
-  const absentPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(
-    (d) => !secret.includes(d) && !knownAbsent.has(d),
-  );
-  const posPool = secret.map((_, i) => i).filter((i) => !knownPos.has(i));
+  const knownPresent = new Set(given.filter((h) => h.kind !== "absent").map((h) => h.digit));
+  const knownPos = new Set(given.filter((h) => h.kind === "position").map((h) => (h as { index: number }).index));
   const pick = <T>(arr: T[]) => arr[Math.floor(rng() * arr.length)]!;
-  if (wantAbsent && absentPool.length) return { kind: "absent", digit: pick(absentPool) };
+  const absentPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => !secret.includes(d) && !knownAbsent.has(d));
+  const presentPool = secret.filter((d) => !knownPresent.has(d));
+  const posPool = secret.map((_, i) => i).filter((i) => !knownPos.has(i));
+
+  if (given.length === 0 && absentPool.length) return { kind: "absent", digit: pick(absentPool) };
+  if (given.length === 1 && presentPool.length) return { kind: "present", digit: pick(presentPool) };
   if (posPool.length) {
     const index = pick(posPool);
     return { kind: "position", index, digit: secret[index]! };
   }
+  if (presentPool.length) return { kind: "present", digit: pick(presentPool) };
   if (absentPool.length) return { kind: "absent", digit: pick(absentPool) };
   return null;
 }
-
-export const HINT_PENALTY = 150;
 
 export interface ScoreInput {
   mission: Mission;
   attemptsUsed: number;
   timeLeft: number;
   hintsUsed: number;
+  hintPenalty?: number;
   streak: number; // consecutive missions won before this one (in this run)
 }
 
@@ -196,12 +205,13 @@ export function computeScore({
   attemptsUsed,
   timeLeft,
   hintsUsed,
+  hintPenalty: customHintPenalty,
   streak,
 }: ScoreInput): ScoreBreakdown {
   const base = 500 * mission.id;
   const timeBonus = timeLeft * 5;
   const attemptBonus = Math.max(0, mission.maxAttempts - attemptsUsed) * 100;
-  const hintPenalty = hintsUsed * HINT_PENALTY;
+  const hintPenalty = customHintPenalty ?? hintsUsed * HINT_PENALTY;
   const streakBonus = streak * 250;
   const total = Math.max(0, base + timeBonus + attemptBonus + streakBonus - hintPenalty);
   return { base, timeBonus, attemptBonus, hintPenalty, streakBonus, total };
