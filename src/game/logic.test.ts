@@ -69,6 +69,18 @@ describe("generateSecret boundaries", () => {
   });
 });
 
+describe("progressive hints", () => {
+  it("starts by eliminating a digit, then prioritizes revealing exact positions", () => {
+    const secret = [7, 0, 3, 9];
+    const first = nextHint(secret, [], createRng(12));
+    expect(first?.kind).toBe("absent");
+    const second = nextHint(secret, [first!], createRng(13));
+    expect(second?.kind).toBe("position");
+    const third = nextHint(secret, [first!, second!], createRng(14));
+    expect(third?.kind).toBe("position");
+  });
+});
+
 describe("nextHint exhaustion", () => {
   it("returns null after every absent digit and position has been revealed", () => {
     const secret = [1, 2];
