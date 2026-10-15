@@ -7,6 +7,7 @@ import { useGameKeyboard, useGameTimer } from "@/components/game/useGameControls
 import { useGamePersistence } from "@/components/game/useGamePersistence";
 import { useSubmitMissionScore } from "@/components/game/useSubmitMissionScore";
 import { useGameTransitionEffects } from "@/components/game/useGameTransitionEffects";
+import { OnlineHub } from "@/components/game/OnlineHub";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 
@@ -72,6 +73,10 @@ export function NeonBreach() {
     <div className="scanlines neon-bg min-h-screen text-foreground">
       {header}
       {s.phase === "title" ? (
+        <>
+          <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:pt-8">
+            <OnlineHub />
+          </div>
         <TitleScreen
           save={save}
           loaded={loaded}
@@ -94,6 +99,7 @@ export function NeonBreach() {
           onReset={() => setConfirmReset(true)}
           onHelp={() => setHelp(true)}
         />
+        </>
       ) : (
         <GameScreen s={s} dispatch={dispatch} sound={save.sound} />
       )}
