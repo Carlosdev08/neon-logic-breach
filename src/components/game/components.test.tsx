@@ -28,6 +28,29 @@ describe("game UI components", () => {
     expect(onStart).toHaveBeenCalledWith(0);
   });
 
+  it("reveals corporate intel only after the previous mission is cleared", () => {
+    const save = {
+      ...DEFAULT_SAVE,
+      progress: {
+        ...DEFAULT_SAVE.progress,
+        medio: { bestScore: 500, unlocked: 2 },
+      },
+    };
+    render(
+      <TitleScreen
+        save={save}
+        loaded
+        onStart={vi.fn()}
+        onDifficultyChange={vi.fn()}
+        onReset={vi.fn()}
+        onHelp={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Medio" }));
+    expect(screen.getByText("Intel desbloqueada · Manifiesto de carga 09")).toBeInTheDocument();
+    expect(screen.getByText(/Kurogane alteró los registros de envío/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Jugar misión 2/ })).toBeInTheDocument();
+  });
   it("keeps locked missions disabled and exposes help/reset actions", () => {
     const onHelp = vi.fn();
     const onReset = vi.fn();
