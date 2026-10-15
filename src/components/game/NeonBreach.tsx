@@ -1,4 +1,4 @@
-import { useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
 import { DEFAULT_SAVE, type SaveData } from "@/game/storage";
@@ -25,7 +25,35 @@ export function NeonBreach() {
   const { loaded } = useGamePersistence(s, dispatch, save, setSave, prev);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const [activeView, setActiveView] = useState<"home" | "online">("home");
+  const [activeView, setActiveView] = useState<"home" | "online">(() =>
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("view") === "online"
+      ? "online"
+      : "home",
+  );
+
+  const navigateView = (view: "home" | "online") => {
+    setActiveView(view);
+    const url = new URL(window.location.href);
+    if (view === "online") {
+      url.searchParams.set("view", "online");
+    } else {
+      url.searchParams.delete("view");
+    }
+    window.history.pushState({}, "", url);
+  };
+
+  useEffect(() => {
+    const syncViewFromUrl = () => {
+      setActiveView(
+        new URLSearchParams(window.location.search).get("view") === "online"
+          ? "online"
+          : "home",
+      );
+    };
+    window.addEventListener("popstate", syncViewFromUrl);
+    return () => window.removeEventListener("popstate", syncViewFromUrl);
+  }, []);
 
   useGameTransitionEffects(s, prev, save.sound, loaded, setSave);
 
@@ -53,7 +81,7 @@ export function NeonBreach() {
       <div className="flex items-center gap-2">
         {s.phase === "title" && (
           <button
-            onClick={() => setActiveView((view) => (view === "home" ? "online" : "home"))}
+            onClick={() => navigateView(activeView === "home" ? "online" : "home")}
             className={btnGhost}
             aria-pressed={activeView === "online"}
           >
@@ -94,7 +122,7 @@ export function NeonBreach() {
                   Operadores y ranking
                 </h1>
               </div>
-              <button className={btnGhost} onClick={() => setActiveView("home")}>
+              <button className={btnGhost} onClick={() => navigateView("home")}>
                 Volver al juego
               </button>
             </div>
