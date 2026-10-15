@@ -111,6 +111,22 @@ describe("save storage", () => {
     expect(localStorage.getItem("neon-breach:active-game:v1")).toBeNull();
   });
 
+  it("rejects saved missions that violate the selected difficulty rules", () => {
+    const invalidGame = reducer(initialState, {
+      type: "START",
+      missionIndex: 0,
+      seed: 123,
+      difficulty: "medio",
+    });
+    localStorage.setItem(
+      "neon-breach:active-game:v1",
+      JSON.stringify({ ...invalidGame, secret: [1, 2, 3] }),
+    );
+
+    expect(loadGameState()).toBeNull();
+    expect(localStorage.getItem("neon-breach:active-game:v1")).toBeNull();
+  });
+
   it("does not throw when storage writes are unavailable", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("quota");
