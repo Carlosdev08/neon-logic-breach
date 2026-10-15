@@ -33,6 +33,7 @@ export function OnlineHub() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [recoveryReady, setRecoveryReady] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
   const loadScores = useCallback(async () => {
     if (!supabase) return;
     let query = supabase
