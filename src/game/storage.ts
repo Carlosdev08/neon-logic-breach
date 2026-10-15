@@ -1,4 +1,4 @@
-import type { Difficulty } from "./logic";
+import { getMissionsForDifficulty, hasUniqueDigits, type Difficulty } from "./logic";
 import type { GameState } from "./reducer";
 const KEY = "neon-breach:v2";
 export interface DifficultyProgress {
@@ -110,11 +110,17 @@ export function loadGameState(): GameState | null {
       !difficulties.includes(value.difficulty ?? "") ||
       !Number.isInteger(value.missionIndex) ||
       (value.missionIndex ?? -1) < 0 ||
+      (value.missionIndex ?? 99) > 4 ||
       !Array.isArray(value.secret) ||
       !value.secret.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) ||
+      !hasUniqueDigits(value.secret) ||
+      value.secret.length !==
+        getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.codeLength ||
       !Array.isArray(value.input) ||
       !value.input.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) ||
       new Set(value.input).size !== value.input.length ||
+      value.input.length >
+        (getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.codeLength ?? 0) ||
       !Array.isArray(value.attempts) ||
       !value.attempts.every(
         (attempt) =>
@@ -122,12 +128,20 @@ export function loadGameState(): GameState | null {
           typeof attempt === "object" &&
           Array.isArray(attempt.guess) &&
           attempt.guess.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) &&
+          hasUniqueDigits(attempt.guess) &&
+          attempt.guess.length ===
+            getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.codeLength &&
           attempt.feedback !== null &&
           typeof attempt.feedback === "object" &&
           Number.isInteger(attempt.feedback.exact) &&
-          Number.isInteger(attempt.feedback.misplaced),
+          Number.isInteger(attempt.feedback.misplaced) &&
+          attempt.feedback.exact >= 0 &&
+          attempt.feedback.misplaced >= 0 &&
+          attempt.feedback.exact + attempt.feedback.misplaced <= attempt.guess.length,
       ) ||
       !Array.isArray(value.hints) ||
+      value.hints.length >
+        getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.maxHints ||
       !value.hints.every(
         (hint) =>
           hint !== null &&
