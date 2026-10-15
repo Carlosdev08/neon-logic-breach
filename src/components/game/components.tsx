@@ -332,7 +332,10 @@ export function GameScreen({
       </section>
 
       {/* Right: intel */}
-      <aside className="panel flex flex-col gap-4 p-4" aria-label="Inteligencia">
+      <aside
+        className={`panel flex flex-col gap-4 p-4 ${s.phase === "playing" || s.phase === "paused" ? "" : "hidden"}`}
+        aria-label="Inteligencia"
+      >
         <div>
           <h3 className="font-mono text-xs uppercase tracking-widest text-primary">Objetivo</h3>
           <p className="mt-1 text-sm">{m.objective}</p>
