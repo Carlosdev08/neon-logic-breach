@@ -58,6 +58,25 @@ describe("NeonBreach application", () => {
     expect(screen.queryByRole("heading", { name: "EN PAUSA" })).not.toBeInTheDocument();
   });
 
+  it("restores the current mission and pauses safely after a refresh", async () => {
+    const first = render(<NeonBreach />);
+    fireEvent.click(await screen.findByRole("button", { name: "Elegir dificultad Medio" }));
+    fireEvent.click(screen.getByRole("button", { name: /Jugar misión 1/ }));
+    fireEvent.keyDown(window, { key: "7" });
+    await waitFor(() => {
+      const saved = JSON.parse(localStorage.getItem("neon-breach:active-session:v1")!);
+      expect(saved.phase).toBe("playing");
+      expect(saved.input).toEqual([7]);
+    });
+    first.unmount();
+
+    render(<NeonBreach />);
+    expect(await screen.findByRole("heading", { name: "Archivo Fantasma" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "EN PAUSA" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Código actual: 7")).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Reanudar" }));
+    expect(screen.queryByRole("heading", { name: "EN PAUSA" })).not.toBeInTheDocument();
+  });
   it("prevents duplicate digits and applies the hint penalty visibly", async () => {
     render(<NeonBreach />);
 
