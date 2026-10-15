@@ -8,7 +8,14 @@ function start(seed = 42) {
 
 describe("game reducer", () => {
   it("keeps hints consistent with attempts and counts exact/misplaced digits correctly", () => {
-    let state: ReturnType<typeof start> = { ...reducer(initialState, { type: "START", missionIndex: 0, seed: 88, difficulty: "facil" }), secret: [6, 1, 0], input: [], attempts: [], hints: [], log: [] };
+    let state: ReturnType<typeof start> = {
+      ...reducer(initialState, { type: "START", missionIndex: 0, seed: 88, difficulty: "facil" }),
+      secret: [6, 1, 0],
+      input: [],
+      attempts: [],
+      hints: [],
+      log: [],
+    };
     for (let i = 0; i < 4; i++) state = reducer(state, { type: "HINT" });
     expect(state.hints).toHaveLength(4);
     for (const hint of state.hints) {

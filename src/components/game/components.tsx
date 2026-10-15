@@ -68,7 +68,10 @@ export function TitleScreen({
     <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:gap-8 sm:py-12">
       <OnlineHub />
       <section className="panel relative overflow-hidden p-5 text-left sm:p-9">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border border-primary/20 sm:h-72 sm:w-72" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border border-primary/20 sm:h-72 sm:w-72"
+        />
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent glow-accent">
@@ -77,7 +80,10 @@ export function TitleScreen({
             <h1 className="mt-4 font-display text-5xl font-bold leading-[0.95] tracking-[0.08em] text-primary glow-primary sm:text-7xl">
               NEON
               <br />
-              BREACH<span aria-hidden="true" className="text-destructive">//</span>
+              BREACH
+              <span aria-hidden="true" className="text-destructive">
+                //
+              </span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Cinco corporaciones. Cinco secretos enterrados. Rompe sus cerraduras, recupera los
@@ -94,22 +100,38 @@ export function TitleScreen({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="border border-border bg-background/60 p-4">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Rango actual</p>
-              <p className="mt-2 font-display text-xl font-bold text-primary sm:text-2xl">{rankProgress.rank.name}</p>
-              <p className="mt-1 font-mono text-xs text-accent">{save.xp.toLocaleString("es")} PX</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Rango actual
+              </p>
+              <p className="mt-2 font-display text-xl font-bold text-primary sm:text-2xl">
+                {rankProgress.rank.name}
+              </p>
+              <p className="mt-1 font-mono text-xs text-accent">
+                {save.xp.toLocaleString("es")} PX
+              </p>
             </div>
             <div className="border border-border bg-background/60 p-4">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Archivos</p>
-              <p className="mt-2 font-display text-2xl font-bold text-accent">{completed}<span className="text-sm text-muted-foreground"> / 5</span></p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Archivos
+              </p>
+              <p className="mt-2 font-display text-2xl font-bold text-accent">
+                {completed}
+                <span className="text-sm text-muted-foreground"> / 5</span>
+              </p>
               <p className="mt-1 font-mono text-xs text-muted-foreground">Desbloqueados</p>
             </div>
             <div className="col-span-2 border border-border bg-background/60 p-4">
               <div className="flex items-center justify-between gap-3 font-mono text-xs">
-                <span className="uppercase tracking-widest text-muted-foreground">Progreso de rango</span>
+                <span className="uppercase tracking-widest text-muted-foreground">
+                  Progreso de rango
+                </span>
                 <span className="text-primary">{rankProgress.current}%</span>
               </div>
               <div className="mt-3 h-2 overflow-hidden bg-muted">
-                <div className="h-full bg-accent transition-all" style={{ width: `${rankProgress.current}%` }} />
+                <div
+                  className="h-full bg-accent transition-all"
+                  style={{ width: `${rankProgress.current}%` }}
+                />
               </div>
               <p className="mt-2 font-mono text-xs text-muted-foreground">
                 {rankProgress.remaining === 0
@@ -125,14 +147,23 @@ export function TitleScreen({
         <section className="space-y-4" aria-labelledby="dificultades">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Selecciona protocolo</p>
-              <h2 id="dificultades" className="mt-1 font-display text-2xl font-bold text-foreground sm:text-3xl">
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">
+                Selecciona protocolo
+              </p>
+              <h2
+                id="dificultades"
+                className="mt-1 font-display text-2xl font-bold text-foreground sm:text-3xl"
+              >
                 Elige tu dificultad
               </h2>
             </div>
             <span className="font-mono text-xs text-muted-foreground">01 / 03 niveles</span>
           </div>
-          <div className="grid gap-3 md:grid-cols-3" role="group" aria-label="Seleccionar dificultad">
+          <div
+            className="grid gap-3 md:grid-cols-3"
+            role="group"
+            aria-label="Seleccionar dificultad"
+          >
             {DIFFICULTIES.map((level, index) => {
               const levelProgress = save.progress[level.id];
               const levelNames = ["Entrenamiento", "Operación estándar", "Protocolo de élite"];
@@ -145,17 +176,32 @@ export function TitleScreen({
                     onDifficultyChange(level.id);
                     setShowMissions(true);
                   }}
-                  className={"group panel min-h-48 border p-5 text-left transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[0_0_24px_rgba(0,240,255,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " + (difficulty === level.id ? "border-primary/70" : "border-border")}
+                  className={
+                    "group panel min-h-48 border p-5 text-left transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[0_0_24px_rgba(0,240,255,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
+                    (difficulty === level.id ? "border-primary/70" : "border-border")
+                  }
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-muted-foreground">0{index + 1} / PROTOCOLO</span>
-                    <span className="text-primary" aria-hidden="true">{index === 0 ? "◇" : index === 1 ? "⬡" : "✳"}</span>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      0{index + 1} / PROTOCOLO
+                    </span>
+                    <span className="text-primary" aria-hidden="true">
+                      {index === 0 ? "◇" : index === 1 ? "⬡" : "✳"}
+                    </span>
                   </div>
-                  <span className="mt-4 block font-display text-2xl font-bold text-primary">{level.label}</span>
-                  <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">{level.description}</span>
+                  <span className="mt-4 block font-display text-2xl font-bold text-primary">
+                    {level.label}
+                  </span>
+                  <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">
+                    {level.description}
+                  </span>
                   <div className="mt-5 flex items-center justify-between border-t border-border pt-3 font-mono text-xs">
-                    <span className="text-muted-foreground">{Math.max(0, levelProgress.unlocked - 1)}/5 archivos</span>
-                    <span className="text-accent group-hover:translate-x-1 transition-transform">Abrir →</span>
+                    <span className="text-muted-foreground">
+                      {Math.max(0, levelProgress.unlocked - 1)}/5 archivos
+                    </span>
+                    <span className="text-accent group-hover:translate-x-1 transition-transform">
+                      Abrir →
+                    </span>
                   </div>
                 </button>
               );
@@ -166,7 +212,9 @@ export function TitleScreen({
         <section className="panel p-4 text-left sm:p-6" aria-labelledby="misiones">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Contratos de la red</p>
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">
+                Contratos de la red
+              </p>
               <h2 id="misiones" className="mt-1 font-display text-2xl font-bold text-primary">
                 {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · Misiones
               </h2>
@@ -175,7 +223,10 @@ export function TitleScreen({
               </p>
             </div>
             <div className="font-mono text-xs text-muted-foreground">
-              Récord: <span className="text-accent">{loaded ? progress.bestScore.toLocaleString("es") : "…"}</span>
+              Récord:{" "}
+              <span className="text-accent">
+                {loaded ? progress.bestScore.toLocaleString("es") : "…"}
+              </span>
             </div>
           </div>
           <button className={btnGhost + " mt-4"} onClick={() => setShowMissions(false)}>
@@ -188,34 +239,74 @@ export function TitleScreen({
               const intel = MISSION_INTEL[i];
               return (
                 <li key={m.id}>
-                  <article className={"h-full border p-4 transition-colors " + (locked ? "border-border/50 bg-background/20 opacity-55" : cleared ? "border-accent/50 bg-accent/[0.03]" : "border-primary/60 bg-primary/[0.03]")}>
+                  <article
+                    className={
+                      "h-full border p-4 transition-colors " +
+                      (locked
+                        ? "border-border/50 bg-background/20 opacity-55"
+                        : cleared
+                          ? "border-accent/50 bg-accent/[0.03]"
+                          : "border-primary/60 bg-primary/[0.03]")
+                    }
+                  >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono text-xs text-muted-foreground">OP-{String(m.id).padStart(2, "0")}</span>
-                      <span className={"font-mono text-[10px] uppercase tracking-widest " + (locked ? "text-muted-foreground" : cleared ? "text-accent" : "text-primary")}>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        OP-{String(m.id).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={
+                          "font-mono text-[10px] uppercase tracking-widest " +
+                          (locked
+                            ? "text-muted-foreground"
+                            : cleared
+                              ? "text-accent"
+                              : "text-primary")
+                        }
+                      >
                         {locked ? "Cifrado" : cleared ? "Archivo abierto" : "Disponible"}
                       </span>
                     </div>
-                    <h3 className="mt-3 font-display text-xl font-bold text-foreground">{m.name}</h3>
+                    <h3 className="mt-3 font-display text-xl font-bold text-foreground">
+                      {m.name}
+                    </h3>
                     <p className="mt-1 font-mono text-xs text-primary">{m.corp}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{m.objective}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                      {m.objective}
+                    </p>
                     <div className="mt-4 flex flex-wrap gap-2 font-mono text-[10px] text-muted-foreground">
                       <span className="border border-border px-2 py-1">{m.codeLength} DÍGITOS</span>
-                      <span className="border border-border px-2 py-1">{m.maxAttempts} INTENTOS</span>
-                      <span className="border border-border px-2 py-1">{Math.floor(m.timeLimit / 60)} MIN</span>
+                      <span className="border border-border px-2 py-1">
+                        {m.maxAttempts} INTENTOS
+                      </span>
+                      <span className="border border-border px-2 py-1">
+                        {Math.floor(m.timeLimit / 60)} MIN
+                      </span>
                     </div>
                     {cleared && intel && (
                       <div className="mt-4 border-t border-accent/30 pt-3">
-                        <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Intel desbloqueada · {intel.title}</p>
-                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{intel.text}</p>
+                        <p className="font-mono text-[10px] uppercase tracking-widest text-accent">
+                          Intel desbloqueada · {intel.title}
+                        </p>
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                          {intel.text}
+                        </p>
                       </div>
                     )}
                     <button
                       disabled={locked || !loaded}
                       onClick={() => onStart(i)}
-                      className={(locked ? btnGhost : cleared ? btnPrimary : btnAccent) + " mt-5 w-full"}
-                      aria-label={locked ? `Misión ${m.id} bloqueada` : `Jugar misión ${m.id}: ${m.name}`}
+                      className={
+                        (locked ? btnGhost : cleared ? btnPrimary : btnAccent) + " mt-5 w-full"
+                      }
+                      aria-label={
+                        locked ? `Misión ${m.id} bloqueada` : `Jugar misión ${m.id}: ${m.name}`
+                      }
                     >
-                      {locked ? "Acceso denegado" : cleared ? "Repetir operación" : "Iniciar operación →"}
+                      {locked
+                        ? "Acceso denegado"
+                        : cleared
+                          ? "Repetir operación"
+                          : "Iniciar operación →"}
                     </button>
                   </article>
                 </li>
@@ -223,8 +314,13 @@ export function TitleScreen({
             })}
           </ol>
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-            <p className="font-mono text-xs text-muted-foreground">El progreso se guarda en este dispositivo.</p>
-            <button onClick={onReset} className="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-destructive hover:underline">
+            <p className="font-mono text-xs text-muted-foreground">
+              El progreso se guarda en este dispositivo.
+            </p>
+            <button
+              onClick={onReset}
+              className="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-destructive hover:underline"
+            >
               Reiniciar progreso
             </button>
           </div>
@@ -376,9 +472,14 @@ export function GameScreen({
           <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
             Registro de intentos
           </h3>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs" aria-label="Leyenda de resultados">
+          <div
+            className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs"
+            aria-label="Leyenda de resultados"
+          >
             <span className="text-accent">● Exactos: dígito y posición correctos</span>
-            <span className="text-warning">◐ Desplazados: dígito correcto, posición incorrecta</span>
+            <span className="text-warning">
+              ◐ Desplazados: dígito correcto, posición incorrecta
+            </span>
           </div>
 
           {s.attempts.length === 0 ? (
@@ -426,7 +527,9 @@ export function GameScreen({
               disabled={!playing || s.hints.length >= m.maxHints}
               onClick={() => dispatch({ type: "HINT" })}
             >
-              Pista −{HINT_PENALTIES[s.difficulty][s.hints.length] ?? HINT_PENALTIES[s.difficulty][HINT_PENALTIES[s.difficulty].length - 1]}
+              Pista −
+              {HINT_PENALTIES[s.difficulty][s.hints.length] ??
+                HINT_PENALTIES[s.difficulty][HINT_PENALTIES[s.difficulty].length - 1]}
             </button>
           </div>
           {s.hints.length === 0 ? (
@@ -437,7 +540,9 @@ export function GameScreen({
                 <li key={i}>
                   {h.kind === "absent"
                     ? `El ${h.digit} no está en el código`
-                    : h.kind === "present" ? `El ${h.digit} está en el código, pero no sabemos dónde` : `Posición ${h.index + 1} = ${h.digit}`}
+                    : h.kind === "present"
+                      ? `El ${h.digit} está en el código, pero no sabemos dónde`
+                      : `Posición ${h.index + 1} = ${h.digit}`}
                 </li>
               ))}
             </ul>

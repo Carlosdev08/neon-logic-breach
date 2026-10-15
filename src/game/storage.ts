@@ -94,7 +94,6 @@ export function writeSave(data: SaveData) {
   }
 }
 
-
 const GAME_KEY = "neon-breach:active-game:v1";
 
 export function loadGameState(): GameState | null {
@@ -126,7 +125,11 @@ export function loadGameState(): GameState | null {
     }
     return value as GameState;
   } catch {
-    try { localStorage.removeItem(GAME_KEY); } catch { /* Storage unavailable */ }
+    try {
+      localStorage.removeItem(GAME_KEY);
+    } catch {
+      /* Storage unavailable */
+    }
     return null;
   }
 }

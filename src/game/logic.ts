@@ -160,21 +160,29 @@ export const HINT_PENALTIES: Record<Difficulty, number[]> = {
 
 export function hintPenaltyFor(hints: Hint[], difficulty: Difficulty): number {
   const penalties = HINT_PENALTIES[difficulty];
-  return hints.reduce((total, _hint, index) => total + (penalties[index] ?? penalties[penalties.length - 1]!), 0);
+  return hints.reduce(
+    (total, _hint, index) => total + (penalties[index] ?? penalties[penalties.length - 1]!),
+    0,
+  );
 }
 
 /** Progressive hints: eliminate a digit, identify a digit, then reveal exact positions. */
 export function nextHint(secret: number[], given: Hint[], rng: Rng): Hint | null {
   const knownAbsent = new Set(given.filter((h) => h.kind === "absent").map((h) => h.digit));
   const knownPresent = new Set(given.filter((h) => h.kind !== "absent").map((h) => h.digit));
-  const knownPos = new Set(given.filter((h) => h.kind === "position").map((h) => (h as { index: number }).index));
+  const knownPos = new Set(
+    given.filter((h) => h.kind === "position").map((h) => (h as { index: number }).index),
+  );
   const pick = <T>(arr: T[]) => arr[Math.floor(rng() * arr.length)]!;
-  const absentPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => !secret.includes(d) && !knownAbsent.has(d));
+  const absentPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(
+    (d) => !secret.includes(d) && !knownAbsent.has(d),
+  );
   const presentPool = secret.filter((d) => !knownPresent.has(d));
   const posPool = secret.map((_, i) => i).filter((i) => !knownPos.has(i));
 
   if (given.length === 0 && absentPool.length) return { kind: "absent", digit: pick(absentPool) };
-  if (given.length === 1 && presentPool.length) return { kind: "present", digit: pick(presentPool) };
+  if (given.length === 1 && presentPool.length)
+    return { kind: "present", digit: pick(presentPool) };
   if (posPool.length) {
     const index = pick(posPool);
     return { kind: "position", index, digit: secret[index]! };
