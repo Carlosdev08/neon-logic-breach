@@ -178,7 +178,7 @@ export function reducer(s: GameState, a: Action): GameState {
       let next: GameState = { ...s, attempts, input: [] };
       next = log(
         next,
-        `> Inyectando ${s.input.join("")} → ${feedback.exact} exactos, ${feedback.misplaced} desplazados.`,
+        `> Inyectando ${s.input.join("")} → ${feedback.exact} ${feedback.exact === 1 ? "exacto" : "exactos"}, ${feedback.misplaced} ${feedback.misplaced === 1 ? "desplazado" : "desplazados"}.`,
         feedback.exact > 0 ? "ok" : "info",
       );
       if (feedback.exact === m.codeLength) {
