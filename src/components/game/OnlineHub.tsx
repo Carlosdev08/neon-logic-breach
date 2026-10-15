@@ -32,7 +32,7 @@ export function OnlineHub() {
   if(queryError) setError("No se pudo cargar el ranking. Revisa la configuración de Supabase.");
   else setScores((data??[]) as unknown as Score[]);
  },[supabase,period]);
- useEffect(()=>{ if(!supabase)return; let active=true; supabase.auth.getUser().then(({data})=>{if(active)setUser(data.user)}); const {data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{setUser(session?.user??null); if(event==="PASSWORD_RECOVERY"){setRecoveryReady(true);setMode("reset");setMessage("Introduce una nueva contraseña para completar la recuperación.");setError("");}}); return ()=>{active=false;subscription.unsubscribe()}; },[supabase]);
+ useEffect(()=>{ if(!supabase)return; let active=true; supabase.auth.getUser().then(({data})=>{if(active)setUser(data.user)}); const {data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{setUser(session?.user??null); if(event==="PASSWORD_RECOVERY"){setRecoveryReady(true);setMode("reset");setMessage("Introduce una nueva contraseña para completar la recuperación.");setError("");}}); if(typeof window!=="undefined"){const params=new URLSearchParams(window.location.hash.slice(1));const authError=params.get("error_description")||params.get("error");if(authError){setError(authError);window.history.replaceState({},document.title,window.location.pathname+window.location.search);}} return ()=>{active=false;subscription.unsubscribe()}; },[supabase]);
  useEffect(()=>{void loadScores()},[loadScores]);
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault(); if(!supabase)return; setBusy(true);setError("");setMessage("");
