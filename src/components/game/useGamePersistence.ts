@@ -1,6 +1,5 @@
 import { useEffect, useState, type Dispatch, type MutableRefObject, type SetStateAction } from "react";
 import {
-  DEFAULT_SAVE,
   loadGameState,
   loadSave,
   writeGameState,
