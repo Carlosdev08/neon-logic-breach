@@ -30,10 +30,7 @@ export function useGameTransitionEffects(
         50 +
         Math.floor((state.lastScore?.total ?? 0) / 20) +
         (state.difficulty === "facil" ? 0 : state.difficulty === "medio" ? 25 : 50);
-      const unlocked = Math.max(
-        state.missionIndex + 2 > 5 ? 5 : state.missionIndex + 2,
-        1,
-      );
+      const unlocked = Math.max(state.missionIndex + 2 > 5 ? 5 : state.missionIndex + 2, 1);
 
       setSave((current) => {
         const difficultyProgress = current.progress[state.difficulty];
