@@ -258,6 +258,34 @@ export function OnlineHub() {
             {message}
           </p>
         )}
+        {confirmationSent && !user && (
+          <button
+            type="button"
+            className={button + " mt-3"}
+            disabled={busy}
+            onClick={async () => {
+              if (!supabase || !email.trim()) return;
+              setBusy(true);
+              setError("");
+              setMessage("");
+              try {
+                const { error: resendError } = await supabase.auth.resend({
+                  type: "signup",
+                  email: email.trim(),
+                  options: { emailRedirectTo: window.location.origin },
+                });
+                if (resendError) throw resendError;
+                setMessage("Nuevo correo enviado. Espera al menos un minuto antes de volver a solicitarlo.");
+              } catch (e) {
+                setError(e instanceof Error ? e.message : "No se pudo reenviar el correo.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Reenviar confirmación
+          </button>
+        )}
         {error && (
           <p role="alert" className="mt-3 text-sm text-destructive">
             {error}
