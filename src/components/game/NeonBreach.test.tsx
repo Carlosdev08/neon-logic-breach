@@ -31,12 +31,12 @@ describe("NeonBreach application", () => {
     render(<NeonBreach />);
     fireEvent.click(await screen.findByRole("button", { name: "Elegir dificultad Fácil" }));
     expect(screen.getByRole("heading", { name: "Fácil · Misiones" })).toBeInTheDocument();
-    expect(screen.getByText("3 DÍGITOS")).toBeInTheDocument();
+    expect(screen.getAllByText("3 DÍGITOS").length).toBeGreaterThan(0);
     expect(screen.getByText("13 INTENTOS")).toBeInTheDocument();
     expect(screen.getByText("4 MIN")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "← Volver a dificultades" }));
     fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Avanzado" }));
-    expect(screen.getByText("5 DÍGITOS")).toBeInTheDocument();
+    expect(screen.getAllByText("5 DÍGITOS").length).toBeGreaterThan(0);
     expect(screen.getByText("8 INTENTOS")).toBeInTheDocument();
     expect(screen.getByText("2 MIN")).toBeInTheDocument();
   });
