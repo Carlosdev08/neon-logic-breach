@@ -7,6 +7,27 @@ function start(seed = 42) {
 }
 
 describe("game reducer", () => {
+  it("keeps hints consistent with attempts and counts exact/misplaced digits correctly", () => {
+    let state: ReturnType<typeof start> = { ...start(88), secret: [6, 1, 0], input: [], attempts: [], hints: [], log: [] };
+    for (let i = 0; i < 4; i++) state = reducer(state, { type: "HINT" });
+    expect(state.hints).toHaveLength(4);
+    for (const hint of state.hints) {
+      if (hint.kind === "absent") expect(state.secret).not.toContain(hint.digit);
+      else if (hint.kind === "present") expect(state.secret).toContain(hint.digit);
+      else expect(state.secret[hint.index]).toBe(hint.digit);
+    }
+    for (const digit of [1, 2, 3]) state = reducer(state, { type: "DIGIT", digit });
+    state = reducer(state, { type: "SUBMIT" });
+    expect(state.attempts[0]?.feedback).toEqual({ exact: 0, misplaced: 1 });
+    for (const digit of [2, 1, 0]) state = reducer(state, { type: "DIGIT", digit });
+    state = reducer(state, { type: "SUBMIT" });
+    expect(state.attempts[1]?.feedback).toEqual({ exact: 2, misplaced: 0 });
+    for (const digit of [6, 1, 0]) state = reducer(state, { type: "DIGIT", digit });
+    state = reducer(state, { type: "SUBMIT" });
+    expect(state.attempts[2]?.feedback).toEqual({ exact: 3, misplaced: 0 });
+    expect(state.phase).toBe("won");
+  });
+
   it("starts a deterministic mission with a clean state", () => {
     const first = start();
     const second = start();
