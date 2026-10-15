@@ -66,7 +66,6 @@ export function TitleScreen({
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:gap-8 sm:py-12">
-      <OnlineHub />
       <section className="panel relative overflow-hidden p-5 text-left sm:p-9">
         <div
           aria-hidden="true"
