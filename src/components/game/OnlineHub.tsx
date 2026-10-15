@@ -48,7 +48,7 @@ export function OnlineHub() {
    }
   }catch(e){setError(e instanceof Error?e.message:"No se pudo completar la operación.");}finally{setBusy(false)}
  }
- if(!isOnlineConfigured)return <section className="panel p-5 sm:p-6"><p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Red global · Fase 1</p><h2 className="mt-2 font-display text-2xl font-bold text-primary">PERFIL Y RANKING ONLINE</h2><p className="mt-3 text-sm text-muted-foreground">Puedes seguir jugando como invitado. Para activar cuentas y ranking real, falta configurar las variables de Supabase y aplicar la migración incluida en el proyecto.</p></section>;
+ if(!isOnlineConfigured)return <section className="panel p-5 sm:p-6"><p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Red global · Fase 1</p><h2 className="mt-2 font-display text-2xl font-bold text-primary">PERFIL Y RANKING ONLINE</h2><p className="mt-3 text-sm text-muted-foreground">Puedes seguir jugando como invitado. Las cuentas online y el ranking se activarán cuando la configuración de autenticación esté lista.</p></section>;
  return <section className="panel grid gap-6 p-5 sm:p-6 lg:grid-cols-[0.9fr_1.1fr]">
   <div><p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Red global · Fase 1</p><h2 className="mt-2 font-display text-2xl font-bold text-primary">PERFIL Y RANKING ONLINE</h2>
   {user?<div className="mt-4 space-y-3"><p className="text-sm">Conectado como <strong>{String(user.user_metadata?.username??user.email??"Operador")}</strong></p><p className="text-xs text-muted-foreground">{user.email}</p><button className={button} onClick={()=>void supabase?.auth.signOut()}>Cerrar sesión</button></div>:
