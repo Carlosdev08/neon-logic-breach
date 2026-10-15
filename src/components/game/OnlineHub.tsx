@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { getSupabase, isOnlineConfigured } from "@/lib/supabase";
-import { getLeaderboardPeriodStart, getLeaderboardUsername, type LeaderboardPeriod } from "@/game/leaderboard";
+import {
+  getLeaderboardPeriodStart,
+  getLeaderboardUsername,
+  type LeaderboardPeriod,
+} from "@/game/leaderboard";
 
 type Score = {
   id: string;
