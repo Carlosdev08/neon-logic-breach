@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { HINT_PENALTY, type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
-import { loadSave, writeSave, DEFAULT_SAVE, type SaveData } from "@/game/storage";
+import { loadSave, writeSave, loadGameState, writeGameState, DEFAULT_SAVE, type SaveData } from "@/game/storage";
 import { play } from "@/game/sound";
 import { TitleScreen, GameScreen, Modal } from "@/components/game/components";
 import { useGameKeyboard, useGameTimer } from "@/components/game/useGameControls";
@@ -25,11 +25,16 @@ export function NeonBreach() {
 
   useEffect(() => {
     setSave(loadSave());
+    const savedGame = loadGameState();
+    if (savedGame) dispatch({ type: "RESTORE", state: savedGame });
     setLoaded(true);
   }, []);
   useEffect(() => {
     if (loaded) writeSave(save);
   }, [save, loaded]);
+  useEffect(() => {
+    if (loaded) writeGameState(s);
+  }, [s, loaded]);
 
   // Side-effects on transitions: sounds + persistence
   useEffect(() => {
