@@ -1,18 +1,13 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useReducer, useRef, useState } from "react";
 import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
-import {
-  loadSave,
-  writeSave,
-  loadGameState,
-  writeGameState,
-  DEFAULT_SAVE,
-  type SaveData,
-} from "@/game/storage";
-import { play } from "@/game/sound";
-import { getSupabase } from "@/lib/supabase";
+import { DEFAULT_SAVE, type SaveData } from "@/game/storage";
 import { TitleScreen, GameScreen, Modal } from "@/components/game/components";
 import { useGameKeyboard, useGameTimer } from "@/components/game/useGameControls";
+import { useGamePersistence } from "@/components/game/useGamePersistence";
+import { useSubmitMissionScore } from "@/components/game/useSubmitMissionScore";
+import { useGameTransitionEffects } from "@/components/game/useGameTransitionEffects";
+import { OnlineHub } from "@/components/game/OnlineHub";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 
@@ -26,94 +21,15 @@ const btnDanger = `${btn} border-destructive text-destructive hover:bg-destructi
 export function NeonBreach() {
   const [s, dispatch] = useReducer(reducer, initialState);
   const [save, setSave] = useState<SaveData>(DEFAULT_SAVE);
-  const [loaded, setLoaded] = useState(false);
-  const [gameLoaded, setGameLoaded] = useState(false);
+  const prev = useRef<GameState>(s);
+  const { loaded } = useGamePersistence(s, dispatch, save, setSave, prev);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const prev = useRef<GameState>(s);
+  const [activeView, setActiveView] = useState<"home" | "online">("home");
 
-  useEffect(() => {
-    setSave(loadSave());
-    const savedGame = loadGameState();
-    if (savedGame) {
-      const restored =
-        savedGame.phase === "playing" ? { ...savedGame, phase: "paused" as const } : savedGame;
-      prev.current = restored;
-      dispatch({ type: "RESTORE", state: restored });
-    }
-    setLoaded(true);
-    setGameLoaded(true);
-  }, []);
-  useEffect(() => {
-    if (loaded) writeSave(save);
-  }, [save, loaded]);
+  useGameTransitionEffects(s, prev, save.sound, loaded, setSave);
 
-  useEffect(() => {
-    if (gameLoaded) writeGameState(s);
-  }, [s, gameLoaded]);
-
-  // Side-effects on transitions: sounds + persistence
-  useEffect(() => {
-    const p = prev.current;
-    prev.current = s;
-    if (p.attempts.length < s.attempts.length && s.phase === "playing") play("error", save.sound);
-    if (p.hints.length < s.hints.length) play("hint", save.sound);
-    if (p.phase !== s.phase) {
-      if (s.phase === "won") {
-        play("win", save.sound);
-        const xpGain =
-          50 +
-          Math.floor((s.lastScore?.total ?? 0) / 20) +
-          (s.difficulty === "facil" ? 0 : s.difficulty === "medio" ? 25 : 50);
-        setSave((v) => ({
-          ...v,
-          xp: v.xp + xpGain,
-          unlocked: Math.max(v.progress[s.difficulty].unlocked, Math.min(5, s.missionIndex + 2)),
-          bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
-          progress: {
-            ...v.progress,
-            [s.difficulty]: {
-              unlocked: Math.max(
-                v.progress[s.difficulty].unlocked,
-                Math.min(5, s.missionIndex + 2),
-              ),
-              bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
-            },
-          },
-        }));
-      }
-      if (s.phase === "lost") play("lose", save.sound);
-    }
-  }, [s, save.sound]);
-
-  // Submit each won mission once per browser session for authenticated players.
-  useEffect(() => {
-    if (s.phase !== "won" || typeof window === "undefined") return;
-    const supabase = getSupabase();
-    if (!supabase) return;
-    const dedupeKey = `neon-breach:submitted:${s.seed}:${s.missionIndex}:${s.difficulty}`;
-    if (window.sessionStorage.getItem(dedupeKey)) return;
-    let cancelled = false;
-    void (async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (cancelled || userError || !user) return;
-      const { error } = await supabase.from("game_scores").insert({
-        user_id: user.id,
-        score: Math.max(0, Math.floor(s.lastScore?.total ?? s.runScore)),
-        difficulty: s.difficulty,
-        missions_completed: Math.min(5, s.missionIndex + 1),
-        duration_seconds: Math.max(0, 300 - s.timeLeft),
-      });
-      if (!error && !cancelled) window.sessionStorage.setItem(dedupeKey, "1");
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [s.phase, s.seed, s.missionIndex, s.difficulty, s.lastScore?.total, s.runScore, s.timeLeft]);
-
+  useSubmitMissionScore(s);
   useGameTimer(s.phase, dispatch);
   useGameKeyboard({
     phase: s.phase,
@@ -135,6 +51,15 @@ export function NeonBreach() {
         NEON<span className="text-destructive glow-danger">//</span>BREACH
       </button>
       <div className="flex items-center gap-2">
+        {s.phase === "title" && (
+          <button
+            onClick={() => setActiveView((view) => (view === "home" ? "online" : "home"))}
+            className={btnGhost}
+            aria-pressed={activeView === "online"}
+          >
+            {activeView === "online" ? "Inicio" : "Red global"}
+          </button>
+        )}
         <span className="hidden font-mono text-xs text-muted-foreground sm:inline">
           RÉCORD {save.bestScore.toLocaleString("es")}
         </span>
@@ -158,28 +83,47 @@ export function NeonBreach() {
     <div className="scanlines neon-bg min-h-screen text-foreground">
       {header}
       {s.phase === "title" ? (
-        <TitleScreen
-          save={save}
-          loaded={loaded}
-          onStart={(i) =>
-            dispatch({
-              type: "START",
-              missionIndex: i,
-              seed: newSeed(),
-              difficulty: save.difficulty,
-            })
-          }
-          onDifficultyChange={(difficulty: Difficulty) =>
-            setSave((v) => ({
-              ...v,
-              difficulty,
-              bestScore: v.progress[difficulty].bestScore,
-              unlocked: v.progress[difficulty].unlocked,
-            }))
-          }
-          onReset={() => setConfirmReset(true)}
-          onHelp={() => setHelp(true)}
-        />
+        activeView === "online" ? (
+          <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">
+                  Red global
+                </p>
+                <h1 className="mt-1 font-display text-2xl font-bold text-foreground sm:text-3xl">
+                  Operadores y ranking
+                </h1>
+              </div>
+              <button className={btnGhost} onClick={() => setActiveView("home")}>
+                Volver al juego
+              </button>
+            </div>
+            <OnlineHub />
+          </main>
+        ) : (
+          <TitleScreen
+            save={save}
+            loaded={loaded}
+            onStart={(i) =>
+              dispatch({
+                type: "START",
+                missionIndex: i,
+                seed: newSeed(),
+                difficulty: save.difficulty,
+              })
+            }
+            onDifficultyChange={(difficulty: Difficulty) =>
+              setSave((v) => ({
+                ...v,
+                difficulty,
+                bestScore: v.progress[difficulty].bestScore,
+                unlocked: v.progress[difficulty].unlocked,
+              }))
+            }
+            onReset={() => setConfirmReset(true)}
+            onHelp={() => setHelp(true)}
+          />
+        )
       ) : (
         <GameScreen s={s} dispatch={dispatch} sound={save.sound} />
       )}

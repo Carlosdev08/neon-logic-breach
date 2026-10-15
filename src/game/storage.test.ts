@@ -87,6 +87,46 @@ describe("save storage", () => {
     writeGameState(initialState);
     expect(loadGameState()).toBeNull();
   });
+  it("discards a saved game with malformed nested state", () => {
+    localStorage.setItem(
+      "neon-breach:active-game:v1",
+      JSON.stringify({
+        phase: "playing",
+        missionIndex: 0,
+        difficulty: "medio",
+        secret: [1, 2, 3, 4],
+        input: [1, 1],
+        attempts: [],
+        hints: [],
+        timeLeft: 100,
+        seed: 123,
+        runScore: 0,
+        streak: 0,
+        log: [],
+        logId: 0,
+      }),
+    );
+
+    expect(loadGameState()).toBeNull();
+    expect(localStorage.getItem("neon-breach:active-game:v1")).toBeNull();
+  });
+
+  it("rejects saved missions that violate the selected difficulty rules", () => {
+    const invalidGame = reducer(initialState, {
+      type: "START",
+      missionIndex: 0,
+      seed: 123,
+      difficulty: "medio",
+    });
+    localStorage.setItem(
+      "neon-breach:active-game:v1",
+      JSON.stringify({ ...invalidGame, secret: [1, 2, 3] }),
+    );
+
+    expect(loadGameState()).toBeNull();
+    expect(localStorage.getItem("neon-breach:active-game:v1")).toBeNull();
+  });
+
   it("does not throw when storage writes are unavailable", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("quota");

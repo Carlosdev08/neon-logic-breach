@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NeonBreach } from "./NeonBreach";
+import { initialState, reducer } from "@/game/reducer";
+import { writeGameState } from "@/game/storage";
 
 describe("NeonBreach application", () => {
   afterEach(() => {
@@ -39,6 +41,21 @@ describe("NeonBreach application", () => {
     expect(screen.getAllByText("5 DÍGITOS").length).toBeGreaterThan(0);
     expect(screen.getByText("8 INTENTOS")).toBeInTheDocument();
     expect(screen.getByText("2 MIN")).toBeInTheDocument();
+  });
+
+  it("restores an active mission as paused after a page reload", async () => {
+    const activeGame = reducer(initialState, {
+      type: "START",
+      missionIndex: 0,
+      seed: 123,
+      difficulty: "medio",
+    });
+    writeGameState(activeGame);
+
+    render(<NeonBreach />);
+
+    expect(await screen.findByRole("heading", { name: "EN PAUSA" })).toBeInTheDocument();
+    expect(localStorage.getItem("neon-breach:active-game:v1")).toContain('"phase":"paused"');
   });
 
   it("starts a mission, accepts keyboard input, and supports pause/resume", async () => {
