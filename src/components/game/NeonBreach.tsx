@@ -10,10 +10,10 @@ import {
   type SaveData,
 } from "@/game/storage";
 import { play } from "@/game/sound";
-import { getSupabase } from "@/lib/supabase";
 import { TitleScreen, GameScreen, Modal } from "@/components/game/components";
 import { useGameKeyboard, useGameTimer } from "@/components/game/useGameControls";
 import { useGamePersistence } from "@/components/game/useGamePersistence";
+import { useSubmitMissionScore } from "@/components/game/useSubmitMissionScore";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 
@@ -27,7 +27,7 @@ const btnDanger = `${btn} border-destructive text-destructive hover:bg-destructi
 export function NeonBreach() {
   const [s, dispatch] = useReducer(reducer, initialState);
   const [save, setSave] = useState<SaveData>(DEFAULT_SAVE);
-  const { loaded } = useGamePersistence(s, dispatch, save, setSave);
+  const { loaded } = useGamePersistence(s, dispatch, save, setSave, prev);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const prev = useRef<GameState>(s);
@@ -66,34 +66,7 @@ export function NeonBreach() {
     }
   }, [s, save.sound]);
 
-  // Submit each won mission once per browser session for authenticated players.
-  useEffect(() => {
-    if (s.phase !== "won" || typeof window === "undefined") return;
-    const supabase = getSupabase();
-    if (!supabase) return;
-    const dedupeKey = `neon-breach:submitted:${s.seed}:${s.missionIndex}:${s.difficulty}`;
-    if (window.sessionStorage.getItem(dedupeKey)) return;
-    let cancelled = false;
-    void (async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (cancelled || userError || !user) return;
-      const { error } = await supabase.from("game_scores").insert({
-        user_id: user.id,
-        score: Math.max(0, Math.floor(s.lastScore?.total ?? s.runScore)),
-        difficulty: s.difficulty,
-        missions_completed: Math.min(5, s.missionIndex + 1),
-        duration_seconds: Math.max(0, 300 - s.timeLeft),
-      });
-      if (!error && !cancelled) window.sessionStorage.setItem(dedupeKey, "1");
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [s.phase, s.seed, s.missionIndex, s.difficulty, s.lastScore?.total, s.runScore, s.timeLeft]);
-
+  useSubmitMissionScore(s);
   useGameTimer(s.phase, dispatch);
   useGameKeyboard({
     phase: s.phase,
