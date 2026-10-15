@@ -8,6 +8,7 @@ describe("NeonBreach application", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     sessionStorage.clear();
+    localStorage.clear();
   });
 
   it("renders the landing screen and opens and closes the help modal", async () => {
