@@ -40,8 +40,13 @@ export function NeonBreach() {
     if (p.phase !== s.phase) {
       if (s.phase === "won") {
         play("win", save.sound);
+        const xpGain =
+          50 +
+          Math.floor((s.lastScore?.total ?? 0) / 20) +
+          (s.difficulty === "facil" ? 0 : s.difficulty === "medio" ? 25 : 50);
         setSave((v) => ({
           ...v,
+          xp: v.xp + xpGain,
           unlocked: Math.max(v.progress[s.difficulty].unlocked, Math.min(5, s.missionIndex + 2)),
           bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
           progress: {
