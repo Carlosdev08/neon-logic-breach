@@ -114,8 +114,8 @@ export function loadGameState(): GameState | null {
       !Array.isArray(value.secret) ||
       !value.secret.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) ||
       !hasUniqueDigits(value.secret) ||
-      value.secret.length !== getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]
-        ?.codeLength ||
+      value.secret.length !==
+        getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.codeLength ||
       !Array.isArray(value.input) ||
       !value.input.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) ||
       new Set(value.input).size !== value.input.length ||
