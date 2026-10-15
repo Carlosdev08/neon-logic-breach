@@ -8,9 +8,12 @@ export function useGameTransitionEffects(
   state: GameState,
   previousState: MutableRefObject<GameState>,
   soundEnabled: boolean,
+  ready: boolean,
   setSave: Dispatch<SetStateAction<SaveData>>,
 ) {
   useEffect(() => {
+    if (!ready) return;
+
     const previous = previousState.current;
     previousState.current = state;
 
@@ -54,5 +57,5 @@ export function useGameTransitionEffects(
     }
 
     if (state.phase === "lost") play("lose", soundEnabled);
-  }, [state, soundEnabled, setSave, previousState]);
+  }, [state, soundEnabled, ready, setSave, previousState]);
 }
