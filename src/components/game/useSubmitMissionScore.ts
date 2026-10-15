@@ -58,8 +58,6 @@ export function useSubmitMissionScore(state: GameState) {
     if (!gateway) return;
 
     inFlight.current.add(key);
-    let cancelled = false;
-
     void submitCompletedMission(
       {
         seed: state.seed,
@@ -71,7 +69,7 @@ export function useSubmitMissionScore(state: GameState) {
       gateway,
     )
       .then((submitted) => {
-        if (submitted && !cancelled) markSessionSubmission(key);
+        if (submitted) markSessionSubmission(key);
       })
       .catch(() => {
         // A failed network request must not break the game UI.
@@ -80,9 +78,6 @@ export function useSubmitMissionScore(state: GameState) {
         inFlight.current.delete(key);
       });
 
-    return () => {
-      cancelled = true;
-    };
   }, [
     state.phase,
     state.seed,
