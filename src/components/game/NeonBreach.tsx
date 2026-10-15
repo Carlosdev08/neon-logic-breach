@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
-import { loadSave, writeSave, DEFAULT_SAVE, type SaveData } from "@/game/storage";
+import { loadSave, writeSave, loadGameState, writeGameState, DEFAULT_SAVE, type SaveData } from "@/game/storage";
 import { play } from "@/game/sound";
 import { TitleScreen, GameScreen, Modal } from "@/components/game/components";
 import { useGameKeyboard, useGameTimer } from "@/components/game/useGameControls";
@@ -19,17 +19,29 @@ export function NeonBreach() {
   const [s, dispatch] = useReducer(reducer, initialState);
   const [save, setSave] = useState<SaveData>(DEFAULT_SAVE);
   const [loaded, setLoaded] = useState(false);
+  const [gameLoaded, setGameLoaded] = useState(false);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const prev = useRef<GameState>(s);
 
   useEffect(() => {
     setSave(loadSave());
+    const savedGame = loadGameState();
+    if (savedGame) {
+      const restored = savedGame.phase === "playing" ? { ...savedGame, phase: "paused" as const } : savedGame;
+      prev.current = restored;
+      dispatch({ type: "RESTORE", state: restored });
+    }
     setLoaded(true);
+    setGameLoaded(true);
   }, []);
   useEffect(() => {
     if (loaded) writeSave(save);
   }, [save, loaded]);
+
+  useEffect(() => {
+    if (gameLoaded) writeGameState(s);
+  }, [s, gameLoaded]);
 
   // Side-effects on transitions: sounds + persistence
   useEffect(() => {

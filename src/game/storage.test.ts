@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_SAVE, getRankForXp, getRankProgress, loadSave, writeSave } from "./storage";
+import { DEFAULT_SAVE, getRankForXp, getRankProgress, loadGameState, loadSave, writeGameState, writeSave } from "./storage";
+import { initialState, reducer } from "./reducer";
 
 describe("save storage", () => {
   beforeEach(() => {
@@ -60,6 +61,18 @@ describe("save storage", () => {
     expect(getRankForXp(850).name).toBe("Intrusa");
     expect(getRankProgress(850)).toMatchObject({ current: 6, remaining: 750 });
     expect(getRankForXp(3500).name).toBe("Leyenda Neón");
+  });
+  it("round trips the active mission separately from player progress", () => {
+    const game = reducer(initialState, { type: "START", missionIndex: 0, seed: 123, difficulty: "medio" });
+    writeGameState(game);
+    expect(loadGameState()).toEqual(game);
+    expect(localStorage.getItem("neon-breach:v2")).toBeNull();
+  });
+  it("clears the active mission when returning to the title", () => {
+    const game = reducer(initialState, { type: "START", missionIndex: 0, seed: 123 });
+    writeGameState(game);
+    writeGameState(initialState);
+    expect(loadGameState()).toBeNull();
   });
   it("does not throw when storage writes are unavailable", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {

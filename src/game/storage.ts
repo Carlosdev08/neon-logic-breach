@@ -1,4 +1,5 @@
 import type { Difficulty } from "./logic";
+import type { GameState } from "./reducer";
 const KEY = "neon-breach:v2";
 export interface DifficultyProgress {
   bestScore: number;
@@ -90,5 +91,54 @@ export function writeSave(data: SaveData) {
     localStorage.setItem(KEY, JSON.stringify(data));
   } catch {
     /* storage unavailable */
+  }
+}
+
+
+const GAME_KEY = "neon-breach:active-game:v1";
+
+export function loadGameState(): GameState | null {
+  try {
+    const raw = localStorage.getItem(GAME_KEY);
+    if (!raw) return null;
+    const value = JSON.parse(raw) as Partial<GameState>;
+    const phases = ["playing", "paused", "won", "lost", "victory"];
+    const difficulties = ["facil", "medio", "avanzado"];
+    if (
+      !value ||
+      typeof value !== "object" ||
+      !phases.includes(value.phase ?? "") ||
+      !difficulties.includes(value.difficulty ?? "") ||
+      !Number.isInteger(value.missionIndex) ||
+      (value.missionIndex ?? -1) < 0 ||
+      !Array.isArray(value.secret) ||
+      !Array.isArray(value.input) ||
+      !Array.isArray(value.attempts) ||
+      !Array.isArray(value.hints) ||
+      !Array.isArray(value.log) ||
+      typeof value.timeLeft !== "number" ||
+      typeof value.seed !== "number" ||
+      typeof value.runScore !== "number" ||
+      typeof value.streak !== "number"
+    ) {
+      localStorage.removeItem(GAME_KEY);
+      return null;
+    }
+    return value as GameState;
+  } catch {
+    try { localStorage.removeItem(GAME_KEY); } catch { /* Storage unavailable */ }
+    return null;
+  }
+}
+
+export function writeGameState(state: GameState) {
+  try {
+    if (state.phase === "title") {
+      localStorage.removeItem(GAME_KEY);
+      return;
+    }
+    localStorage.setItem(GAME_KEY, JSON.stringify(state));
+  } catch {
+    /* Storage unavailable */
   }
 }
