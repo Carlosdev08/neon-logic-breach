@@ -7,7 +7,7 @@ on:
     branches: [main, refactor/solid-architecture, visual-preview, fix/victory-overlay-mobile, feature/progressive-hints-balance, feature/professional-home-ranks-story, fix/refresh-persistence-clean-main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: validate-${{ github.ref }}
@@ -20,19 +20,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Install dependencies
         run: bun install --no-save
-      - name: Format source for validation
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
-        run: bun run format
-      - name: Format preview branch
-        if: github.ref == 'refs/heads/visual-preview' || github.ref == 'refs/heads/fix/victory-overlay-mobile' || github.ref == 'refs/heads/feature/progressive-hints-balance' || github.ref == 'refs/heads/feature/professional-home-ranks-story' || github.ref == 'refs/heads/fix/refresh-persistence-clean-main'
-        run: bun run format
+      - name: Check formatting
+        run: bunx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css}"
       - name: Run tests
         run: bun run test
       - name: Build
