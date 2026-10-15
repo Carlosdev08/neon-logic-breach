@@ -60,7 +60,8 @@ export type Action =
   | { type: "PAUSE" }
   | { type: "RESUME" }
   | { type: "CONTINUE"; seed: number }
-  | { type: "QUIT" };
+  | { type: "QUIT" }
+  | { type: "RESTORE"; state: GameState };
 
 export const initialState: GameState = {
   phase: "title",
@@ -132,6 +133,8 @@ export function reducer(s: GameState, a: Action): GameState {
       return startMission(s, s.missionIndex + 1, a.seed, true);
     case "QUIT":
       return { ...initialState, logId: s.logId };
+    case "RESTORE":
+      return a.state;
     case "PAUSE":
       return s.phase === "playing" ? log({ ...s, phase: "paused" }, "> Conexión en espera.") : s;
     case "RESUME":
