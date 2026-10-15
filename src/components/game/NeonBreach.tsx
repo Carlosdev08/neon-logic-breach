@@ -77,28 +77,28 @@ export function NeonBreach() {
           <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:pt-8">
             <OnlineHub />
           </div>
-        <TitleScreen
-          save={save}
-          loaded={loaded}
-          onStart={(i) =>
-            dispatch({
-              type: "START",
-              missionIndex: i,
-              seed: newSeed(),
-              difficulty: save.difficulty,
-            })
-          }
-          onDifficultyChange={(difficulty: Difficulty) =>
-            setSave((v) => ({
-              ...v,
-              difficulty,
-              bestScore: v.progress[difficulty].bestScore,
-              unlocked: v.progress[difficulty].unlocked,
-            }))
-          }
-          onReset={() => setConfirmReset(true)}
-          onHelp={() => setHelp(true)}
-        />
+          <TitleScreen
+            save={save}
+            loaded={loaded}
+            onStart={(i) =>
+              dispatch({
+                type: "START",
+                missionIndex: i,
+                seed: newSeed(),
+                difficulty: save.difficulty,
+              })
+            }
+            onDifficultyChange={(difficulty: Difficulty) =>
+              setSave((v) => ({
+                ...v,
+                difficulty,
+                bestScore: v.progress[difficulty].bestScore,
+                unlocked: v.progress[difficulty].unlocked,
+              }))
+            }
+            onReset={() => setConfirmReset(true)}
+            onHelp={() => setHelp(true)}
+          />
         </>
       ) : (
         <GameScreen s={s} dispatch={dispatch} sound={save.sound} />
