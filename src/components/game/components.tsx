@@ -75,7 +75,7 @@ export function TitleScreen({
             <h1 className="mt-4 font-display text-5xl font-bold leading-[0.95] tracking-[0.08em] text-primary glow-primary sm:text-7xl">
               NEON
               <br />
-              BREACH<span className="text-destructive">//</span>
+              BREACH<span aria-hidden="true" className="text-destructive">//</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Cinco corporaciones. Cinco secretos enterrados. Rompe sus cerraduras, recupera los
@@ -177,7 +177,7 @@ export function TitleScreen({
             </div>
           </div>
           <button className={btnGhost + " mt-4"} onClick={() => setShowMissions(false)}>
-            ← Volver al inicio
+            ← Volver a dificultades
           </button>
           <ol className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {missions.map((m, i) => {
