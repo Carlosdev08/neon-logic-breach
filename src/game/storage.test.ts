@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_SAVE, getRankForXp, getRankProgress, loadSave, writeSave } from "./storage";
+import { DEFAULT_SAVE, getRankForXp, getRankProgress, loadSave, writeSave, loadGameSession, writeGameSession, clearGameSession } from "./storage";
+import { initialState, reducer } from "./reducer";
 
 describe("save storage", () => {
   beforeEach(() => {
@@ -60,6 +61,17 @@ describe("save storage", () => {
     expect(getRankForXp(850).name).toBe("Intrusa");
     expect(getRankProgress(850)).toMatchObject({ current: 6, remaining: 750 });
     expect(getRankForXp(3500).name).toBe("Leyenda Neón");
+  });
+  it("round trips an active game session and clears it when quitting", () => {
+    const active = reducer(initialState, { type: "START", missionIndex: 0, seed: 123, difficulty: "medio" });
+    writeGameSession(active);
+    expect(loadGameSession()).toEqual(active);
+    clearGameSession();
+    expect(loadGameSession()).toBeNull();
+  });
+  it("ignores a malformed active session", () => {
+    localStorage.setItem("neon-breach:active-session:v1", "{broken");
+    expect(loadGameSession()).toBeNull();
   });
   it("does not throw when storage writes are unavailable", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
