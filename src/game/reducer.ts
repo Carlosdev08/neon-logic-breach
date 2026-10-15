@@ -133,6 +133,8 @@ export function reducer(s: GameState, a: Action): GameState {
       return startMission(s, s.missionIndex + 1, a.seed, true);
     case "QUIT":
       return { ...initialState, logId: s.logId };
+    case "LOAD_STATE":
+      return a.payload;
     case "RESTORE":
       return a.state;
     case "PAUSE":
