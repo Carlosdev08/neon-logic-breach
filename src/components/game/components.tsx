@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode, type Dispatch } from "react";
+import { OnlineHub } from "@/components/game/OnlineHub";
 import {
   HINT_PENALTIES,
   DIFFICULTIES,
@@ -65,6 +66,7 @@ export function TitleScreen({
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:gap-8 sm:py-12">
+      <OnlineHub />
       <section className="panel relative overflow-hidden p-5 text-left sm:p-9">
         <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border border-primary/20 sm:h-72 sm:w-72" />
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
