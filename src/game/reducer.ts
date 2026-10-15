@@ -59,7 +59,8 @@ export type Action =
   | { type: "PAUSE" }
   | { type: "RESUME" }
   | { type: "CONTINUE"; seed: number }
-  | { type: "QUIT" };
+  | { type: "QUIT" }
+  | { type: "RESTORE"; state: GameState };
 
 export const initialState: GameState = {
   phase: "title",
@@ -122,6 +123,8 @@ function startMission(
 export function reducer(s: GameState, a: Action): GameState {
   const m = getMissionsForDifficulty(s.difficulty)[s.missionIndex]!;
   switch (a.type) {
+    case "RESTORE":
+      return a.state;
     case "START":
       return startMission(s, a.missionIndex, a.seed, !!a.keepRun, a.difficulty ?? s.difficulty);
     case "CONTINUE":
