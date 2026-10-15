@@ -45,7 +45,7 @@ export function OnlineHub() {
     if (start) query = query.gte("created_at", start.toISOString());
     const { data, error: queryError } = await query;
     if (queryError) setError("No se pudo cargar el ranking. Revisa la configuración de Supabase.");
-    else setScores((data ?? []) as unknown as Score[]);
+    else setScores(aggregateLeaderboardScores((data ?? []) as unknown as Score[]) as Score[]);
   }, [supabase, period]);
   useEffect(() => {
     if (!supabase) return;
@@ -321,7 +321,7 @@ export function OnlineHub() {
         <ol className="mt-4 space-y-2">
           {scores.map((row, i) => (
             <li
-              key={row.id}
+              key={row.user_id}
               className="flex items-center justify-between gap-3 border border-border/70 bg-background/50 px-3 py-3"
             >
               <div>
@@ -330,10 +330,10 @@ export function OnlineHub() {
                 </span>
                 <strong className="text-sm">{getLeaderboardUsername(row.profiles)}</strong>
                 <p className="ml-8 text-xs text-muted-foreground">
-                  {row.difficulty} · {new Date(row.created_at).toLocaleDateString("es-ES")}
+                  {row.missions} {row.missions === 1 ? "misión" : "misiones"} · última: {row.difficulty} · {new Date(row.created_at).toLocaleDateString("es-ES")}
                 </p>
               </div>
-              <span className="font-mono text-accent">{row.score.toLocaleString("es-ES")} pts</span>
+              <span className="font-mono text-accent">{("totalScore" in row ? row.totalScore : row.score).toLocaleString("es-ES")} pts</span>
             </li>
           ))}
           {scores.length === 0 && (
