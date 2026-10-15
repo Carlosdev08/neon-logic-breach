@@ -165,7 +165,8 @@ export function reducer(s: GameState, a: Action): GameState {
       const h = nextHint(s.secret, s.hints, createRng(s.seed + 97 * (s.hints.length + 1)));
       if (!h) return s;
       const nextHints = [...s.hints, h];
-      const penalty = hintPenaltyFor(nextHints, s.difficulty) - hintPenaltyFor(s.hints, s.difficulty);
+      const penalty =
+        hintPenaltyFor(nextHints, s.difficulty) - hintPenaltyFor(s.hints, s.difficulty);
       const text =
         h.kind === "absent"
           ? `> Pista: el dígito ${h.digit} NO forma parte del código.`

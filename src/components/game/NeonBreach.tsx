@@ -1,7 +1,14 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
-import { loadSave, writeSave, loadGameState, writeGameState, DEFAULT_SAVE, type SaveData } from "@/game/storage";
+import {
+  loadSave,
+  writeSave,
+  loadGameState,
+  writeGameState,
+  DEFAULT_SAVE,
+  type SaveData,
+} from "@/game/storage";
 import { play } from "@/game/sound";
 import { getSupabase } from "@/lib/supabase";
 import { TitleScreen, GameScreen, Modal } from "@/components/game/components";
@@ -29,7 +36,8 @@ export function NeonBreach() {
     setSave(loadSave());
     const savedGame = loadGameState();
     if (savedGame) {
-      const restored = savedGame.phase === "playing" ? { ...savedGame, phase: "paused" as const } : savedGame;
+      const restored =
+        savedGame.phase === "playing" ? { ...savedGame, phase: "paused" as const } : savedGame;
       prev.current = restored;
       dispatch({ type: "RESTORE", state: restored });
     }
@@ -87,7 +95,10 @@ export function NeonBreach() {
     if (window.sessionStorage.getItem(dedupeKey)) return;
     let cancelled = false;
     void (async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
       if (cancelled || userError || !user) return;
       const { error } = await supabase.from("game_scores").insert({
         user_id: user.id,
@@ -98,7 +109,9 @@ export function NeonBreach() {
       });
       if (!error && !cancelled) window.sessionStorage.setItem(dedupeKey, "1");
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [s.phase, s.seed, s.missionIndex, s.difficulty, s.lastScore?.total, s.runScore, s.timeLeft]);
 
   useGameTimer(s.phase, dispatch);
@@ -191,7 +204,8 @@ export function NeonBreach() {
               Tienes intentos y tiempo limitados. Si se agotan, salta la alarma y puedes reintentar.
             </li>
             <li>
-              Las pistas son progresivas: primero descartan un dígito, después confirman uno y, por último, revelan una posición. El coste aumenta y depende de la dificultad.
+              Las pistas son progresivas: primero descartan un dígito, después confirman uno y, por
+              último, revelan una posición. El coste aumenta y depende de la dificultad.
             </li>
             <li>
               Puntuación: base de misión + tiempo restante + intentos sobrantes + bonus por racha −

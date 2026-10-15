@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_SAVE, getRankForXp, getRankProgress, loadGameState, loadSave, writeGameState, writeSave } from "./storage";
+import {
+  DEFAULT_SAVE,
+  getRankForXp,
+  getRankProgress,
+  loadGameState,
+  loadSave,
+  writeGameState,
+  writeSave,
+} from "./storage";
 import { initialState, reducer } from "./reducer";
 
 describe("save storage", () => {
@@ -63,7 +71,12 @@ describe("save storage", () => {
     expect(getRankForXp(3500).name).toBe("Leyenda Neón");
   });
   it("round trips the active mission separately from player progress", () => {
-    const game = reducer(initialState, { type: "START", missionIndex: 0, seed: 123, difficulty: "medio" });
+    const game = reducer(initialState, {
+      type: "START",
+      missionIndex: 0,
+      seed: 123,
+      difficulty: "medio",
+    });
     writeGameState(game);
     expect(loadGameState()).toEqual(game);
     expect(localStorage.getItem("neon-breach:v2")).toBeNull();
