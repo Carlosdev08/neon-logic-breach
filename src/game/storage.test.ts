@@ -12,7 +12,7 @@ import { initialState, reducer } from "./reducer";
 
 describe("save storage", () => {
   beforeEach(() => {
-    localStorage.clear();
+    sessionStorage.clear();
     vi.restoreAllMocks();
   });
   it("returns defaults when there is no saved progress", () => {
@@ -35,7 +35,7 @@ describe("save storage", () => {
     expect(loadSave()).toEqual(save);
   });
   it("migrates the old save into medium difficulty", () => {
-    localStorage.setItem(
+    sessionStorage.setItem(
       "neon-breach:v1",
       JSON.stringify({ bestScore: 900, unlocked: 3, sound: false }),
     );
@@ -52,18 +52,18 @@ describe("save storage", () => {
     });
   });
   it("falls back to defaults for malformed JSON", () => {
-    localStorage.setItem("neon-breach:v2", "{broken");
+    sessionStorage.setItem("neon-breach:v2", "{broken");
     expect(loadSave()).toEqual(DEFAULT_SAVE);
   });
   it("clamps unlocked mission and normalizes invalid fields", () => {
-    localStorage.setItem(
+    sessionStorage.setItem(
       "neon-breach:v2",
       JSON.stringify({ bestScore: "bad", unlocked: 100, sound: "yes" }),
     );
     expect(loadSave()).toMatchObject({ bestScore: 0, unlocked: 5, sound: true });
   });
   it("normalizes persisted XP and calculates rank progression", () => {
-    localStorage.setItem("neon-breach:v2", JSON.stringify({ xp: 850 }));
+    sessionStorage.setItem("neon-breach:v2", JSON.stringify({ xp: 850 }));
     expect(loadSave().xp).toBe(850);
     expect(getRankForXp(0).name).toBe("Recluta");
     expect(getRankForXp(850).name).toBe("Intrusa");
@@ -79,7 +79,7 @@ describe("save storage", () => {
     });
     writeGameState(game);
     expect(loadGameState()).toEqual(game);
-    expect(localStorage.getItem("neon-breach:v2")).toBeNull();
+    expect(sessionStorage.getItem("neon-breach:v2")).toBeNull();
   });
   it("clears the active mission when returning to the title", () => {
     const game = reducer(initialState, { type: "START", missionIndex: 0, seed: 123 });
@@ -88,7 +88,7 @@ describe("save storage", () => {
     expect(loadGameState()).toBeNull();
   });
   it("discards a saved game with malformed nested state", () => {
-    localStorage.setItem(
+    sessionStorage.setItem(
       "neon-breach:active-game:v1",
       JSON.stringify({
         phase: "playing",
@@ -108,7 +108,7 @@ describe("save storage", () => {
     );
 
     expect(loadGameState()).toBeNull();
-    expect(localStorage.getItem("neon-breach:active-game:v1")).toBeNull();
+    expect(sessionStorage.getItem("neon-breach:active-game:v1")).toBeNull();
   });
 
   it("rejects saved missions that violate the selected difficulty rules", () => {
@@ -118,13 +118,13 @@ describe("save storage", () => {
       seed: 123,
       difficulty: "medio",
     });
-    localStorage.setItem(
+    sessionStorage.setItem(
       "neon-breach:active-game:v1",
       JSON.stringify({ ...invalidGame, secret: [1, 2, 3] }),
     );
 
     expect(loadGameState()).toBeNull();
-    expect(localStorage.getItem("neon-breach:active-game:v1")).toBeNull();
+    expect(sessionStorage.getItem("neon-breach:active-game:v1")).toBeNull();
   });
 
   it("does not throw when storage writes are unavailable", () => {
