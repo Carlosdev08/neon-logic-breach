@@ -115,7 +115,8 @@ export function loadGameState(): GameState | null {
       !value.secret.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) ||
       !hasUniqueDigits(value.secret) ||
       value.secret.length !==
-        getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.codeLength ||
+        getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]
+          ?.codeLength ||
       !Array.isArray(value.input) ||
       !value.input.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) ||
       new Set(value.input).size !== value.input.length ||
@@ -130,7 +131,8 @@ export function loadGameState(): GameState | null {
           attempt.guess.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) &&
           hasUniqueDigits(attempt.guess) &&
           attempt.guess.length ===
-            getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.codeLength &&
+            getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]
+              ?.codeLength &&
           attempt.feedback !== null &&
           typeof attempt.feedback === "object" &&
           Number.isInteger(attempt.feedback.exact) &&
