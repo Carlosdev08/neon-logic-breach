@@ -25,6 +25,7 @@ export function NeonBreach() {
   const { loaded } = useGamePersistence(s, dispatch, save, setSave, prev);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [activeView, setActiveView] = useState<"home" | "online">("home");
 
   useGameTransitionEffects(s, prev, save.sound, loaded, setSave);
 
@@ -50,6 +51,15 @@ export function NeonBreach() {
         NEON<span className="text-destructive glow-danger">//</span>BREACH
       </button>
       <div className="flex items-center gap-2">
+        {s.phase === "title" && (
+          <button
+            onClick={() => setActiveView((view) => (view === "home" ? "online" : "home"))}
+            className={btnGhost}
+            aria-pressed={activeView === "online"}
+          >
+            {activeView === "online" ? "Inicio" : "Red global"}
+          </button>
+        )}
         <span className="hidden font-mono text-xs text-muted-foreground sm:inline">
           RÉCORD {save.bestScore.toLocaleString("es")}
         </span>
@@ -73,10 +83,18 @@ export function NeonBreach() {
     <div className="scanlines neon-bg min-h-screen text-foreground">
       {header}
       {s.phase === "title" ? (
-        <>
-          <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:pt-8">
+        activeView === "online" ? (
+          <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Red global</p>
+                <h1 className="mt-1 font-display text-2xl font-bold text-foreground sm:text-3xl">Operadores y ranking</h1>
+              </div>
+              <button className={btnGhost} onClick={() => setActiveView("home")}>Volver al juego</button>
+            </div>
             <OnlineHub />
-          </div>
+          </main>
+        ) : (
           <TitleScreen
             save={save}
             loaded={loaded}
@@ -99,7 +117,7 @@ export function NeonBreach() {
             onReset={() => setConfirmReset(true)}
             onHelp={() => setHelp(true)}
           />
-        </>
+        )
       ) : (
         <GameScreen s={s} dispatch={dispatch} sound={save.sound} />
       )}
