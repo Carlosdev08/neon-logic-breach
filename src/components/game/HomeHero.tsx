@@ -3,6 +3,11 @@ import type { getRankProgress } from "@/game/storage";
 
 type RankProgress = ReturnType<typeof getRankProgress>;
 
+const btn =
+  "font-mono uppercase tracking-wider text-sm px-4 py-2 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+const btnAccent = `${btn} border-accent bg-accent text-accent-foreground hover:bg-accent/80 font-semibold`;
+const btnGhost = `${btn} border-border text-muted-foreground hover:text-foreground hover:border-primary`;
+
 export function HomeHero({
   save,
   completed,
