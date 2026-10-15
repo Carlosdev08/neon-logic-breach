@@ -46,9 +46,7 @@ export function NeonBreach() {
   useEffect(() => {
     const syncViewFromUrl = () => {
       setActiveView(
-        new URLSearchParams(window.location.search).get("view") === "online"
-          ? "online"
-          : "home",
+        new URLSearchParams(window.location.search).get("view") === "online" ? "online" : "home",
       );
     };
     window.addEventListener("popstate", syncViewFromUrl);
@@ -164,8 +162,8 @@ export function NeonBreach() {
                 01 / Objetivo
               </p>
               <p className="mt-2">
-                Descifra el código secreto antes de que se agoten el tiempo y los intentos.
-                Los dígitos no se repiten: las primeras misiones usan 4 y las últimas, 5.
+                Descifra el código secreto antes de que se agoten el tiempo y los intentos. Los
+                dígitos no se repiten: las primeras misiones usan 4 y las últimas, 5.
               </p>
             </section>
 
