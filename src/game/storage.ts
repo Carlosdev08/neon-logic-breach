@@ -157,7 +157,11 @@ export function loadGameState(): GameState | null {
       value.streak! < 0 ||
       !Number.isInteger(value.logId) ||
       (value.phase === "playing" && value.secret.length === 0) ||
-      (value.phase !== "playing" && value.phase !== "paused" && value.phase !== "won" && value.phase !== "lost" && value.phase !== "victory")
+      (value.phase !== "playing" &&
+        value.phase !== "paused" &&
+        value.phase !== "won" &&
+        value.phase !== "lost" &&
+        value.phase !== "victory")
     ) {
       localStorage.removeItem(GAME_KEY);
       return null;
