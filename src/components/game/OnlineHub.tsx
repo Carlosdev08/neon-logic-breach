@@ -10,10 +10,19 @@ import {
 
 type Score = {
   id: string;
+  user_id: string;
   score: number;
   difficulty: string;
   created_at: string;
   profiles: { username: string } | { username: string }[] | null;
+};
+
+type LeaderboardEntry = {
+  user_id: string;
+  username: string;
+  totalScore: number;
+  missions: number;
+  lastPlayed: string;
 };
 const field =
   "mt-1 w-full border border-border bg-background px-3 py-2 font-mono text-sm text-foreground";
@@ -28,7 +37,7 @@ export function OnlineHub() {
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup" | "reset">("login");
   const [period, setPeriod] = useState<LeaderboardPeriod>("global");
-  const [scores, setScores] = useState<Score[]>([]);
+  const [scores, setScores] = useState<LeaderboardEntry[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -38,14 +47,40 @@ export function OnlineHub() {
     if (!supabase) return;
     let query = supabase
       .from("game_scores")
-      .select("id,score,difficulty,created_at,profiles(username)")
-      .order("score", { ascending: false })
-      .limit(10);
+      .select("id,user_id,score,difficulty,created_at,profiles(username)")
+      .order("created_at", { ascending: false });
     const start = getLeaderboardPeriodStart(period);
     if (start) query = query.gte("created_at", start.toISOString());
     const { data, error: queryError } = await query;
-    if (queryError) setError("No se pudo cargar el ranking. Revisa la configuración de Supabase.");
-    else setScores(aggregateLeaderboardScores((data ?? []) as unknown as Score[]) as Score[]);
+    if (queryError) {
+      setError("No se pudo cargar el ranking. Revisa la configuración de Supabase.");
+      return;
+    }
+
+    const totals = new Map<string, LeaderboardEntry>();
+    for (const row of (data ?? []) as unknown as Score[]) {
+      const username = getLeaderboardUsername(row.profiles);
+      const existing = totals.get(row.user_id);
+      if (existing) {
+        existing.totalScore += row.score;
+        existing.missions += 1;
+        if (row.created_at > existing.lastPlayed) existing.lastPlayed = row.created_at;
+      } else {
+        totals.set(row.user_id, {
+          user_id: row.user_id,
+          username,
+          totalScore: row.score,
+          missions: 1,
+          lastPlayed: row.created_at,
+        });
+      }
+    }
+
+    setScores(
+      [...totals.values()]
+        .sort((a, b) => b.totalScore - a.totalScore || b.lastPlayed.localeCompare(a.lastPlayed))
+        .slice(0, 10),
+    );
   }, [supabase, period]);
   useEffect(() => {
     if (!supabase) return;
@@ -328,12 +363,15 @@ export function OnlineHub() {
                 <span className="mr-3 font-mono text-primary">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <strong className="text-sm">{getLeaderboardUsername(row.profiles)}</strong>
+                <strong className="text-sm">{row.username}</strong>
                 <p className="ml-8 text-xs text-muted-foreground">
-                  {row.missions ?? 1} {(row.missions ?? 1) === 1 ? "misión" : "misiones"} · última: {row.difficulty} · {new Date(row.created_at).toLocaleDateString("es-ES")}
+                  {row.missions} {row.missions === 1 ? "misión" : "misiones"} · Última:{" "}
+                  {new Date(row.lastPlayed).toLocaleDateString("es-ES")}
                 </p>
               </div>
-              <span className="font-mono text-accent">{(row.totalScore ?? row.score).toLocaleString("es-ES")} pts</span>
+              <span className="font-mono text-accent">
+                {row.totalScore.toLocaleString("es-ES")} pts
+              </span>
             </li>
           ))}
           {scores.length === 0 && (
