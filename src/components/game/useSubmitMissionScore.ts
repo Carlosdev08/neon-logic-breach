@@ -77,7 +77,6 @@ export function useSubmitMissionScore(state: GameState) {
       .finally(() => {
         inFlight.current.delete(key);
       });
-
   }, [
     state.phase,
     state.seed,
