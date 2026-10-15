@@ -25,7 +25,7 @@ export function NeonBreach() {
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  useGameTransitionEffects(s, prev, save.sound, setSave);
+  useGameTransitionEffects(s, prev, save.sound, loaded, setSave);
 
   useSubmitMissionScore(s);
   useGameTimer(s.phase, dispatch);
