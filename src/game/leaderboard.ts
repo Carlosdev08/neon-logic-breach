@@ -1,7 +1,10 @@
 export type LeaderboardPeriod = "global" | "weekly" | "daily";
 
 /** Returns the local-calendar start boundary used to filter leaderboard scores. */
-export function getLeaderboardPeriodStart(period: LeaderboardPeriod, now = new Date()): Date | null {
+export function getLeaderboardPeriodStart(
+  period: LeaderboardPeriod,
+  now = new Date(),
+): Date | null {
   if (period === "global") return null;
 
   const start = new Date(now);
