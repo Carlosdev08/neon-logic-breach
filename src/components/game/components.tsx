@@ -7,7 +7,7 @@ import {
 } from "@/game/logic";
 import { type GameState, type Action } from "@/game/reducer";
 import { play } from "@/game/sound";
-import { type SaveData } from "@/game/storage";
+import { getRankProgress, type SaveData } from "@/game/storage";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 const fmt = (t: number) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
@@ -17,6 +17,29 @@ const btn =
 const btnPrimary = `${btn} border-primary text-primary hover:bg-primary hover:text-primary-foreground`;
 const btnAccent = `${btn} border-accent bg-accent text-accent-foreground hover:bg-accent/80 font-semibold`;
 const btnGhost = `${btn} border-border text-muted-foreground hover:text-foreground hover:border-primary`;
+
+const MISSION_INTEL = [
+  {
+    title: "Manifiesto de carga 09",
+    text: "Kurogane alteró los registros de envío para ocultar material destinado al distrito industrial. La última copia apunta a un intermediario dentro del Consorcio Eclipse.",
+  },
+  {
+    title: "Informe Helix / Proyecto Lázaro",
+    text: "Helix Biogenética probó un protocolo de modificación neuronal sin consentimiento. Una firma digital conecta el experimento con contratos de vigilancia de Ónix.",
+  },
+  {
+    title: "Orden de vigilancia D-9",
+    text: "Ónix Seguridad Privada desplegó reconocimiento predictivo sobre residentes del distrito 9. El informe revela que Banco Prisma financió la infraestructura.",
+  },
+  {
+    title: "Libro mayor Prisma",
+    text: "Las cuentas cifradas muestran pagos cruzados entre las cinco corporaciones. Una transferencia recurrente lleva el sello del Proyecto Eclipse.",
+  },
+  {
+    title: "Dossier Eclipse / 2087",
+    text: "Eclipse coordinó las operaciones anteriores para provocar un apagón controlado y comprar los activos de la ciudad. La filtración completa ya puede reconstruirse.",
+  },
+];
 
 export function TitleScreen({
   save,
@@ -36,122 +59,173 @@ export function TitleScreen({
   const difficulty = save.difficulty;
   const missions = getMissionsForDifficulty(difficulty);
   const progress = save.progress[difficulty];
+  const rankProgress = getRankProgress(save.xp);
+  const completed = Math.max(0, progress.unlocked - 1);
   const [showMissions, setShowMissions] = useState(false);
+
   return (
-    <main className="mx-auto flex max-w-4xl flex-col items-center px-4 py-12 text-center sm:py-20">
-      <p className="font-mono text-xs uppercase tracking-[0.4em] text-accent glow-accent">
-        Distrito Neón · 2087
-      </p>
-      <h1 className="mt-4 font-display text-5xl font-bold tracking-[0.15em] text-primary glow-primary sm:text-7xl">
-        NEON BREACH
-      </h1>
-      <p className="mt-6 max-w-xl text-muted-foreground">
-        Eres una operadora freelance. Cinco corporaciones esconden sus secretos tras cerraduras
-        cifradas. Elige tu dificultad y deduce cada código antes de que el rastreo te alcance.
-      </p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <button className={btnPrimary} onClick={onHelp}>
-          Cómo jugar
-        </button>
-      </div>
-      {!showMissions ? (
-        <section className="panel mt-8 w-full p-5 text-left sm:p-6" aria-labelledby="dificultades">
-          <div className="flex items-center justify-between gap-3">
-            <h2
-              id="dificultades"
-              className="font-mono text-xs uppercase tracking-widest text-primary"
-            >
-              Elige tu nivel
-            </h2>
-            <span className="font-mono text-xs text-muted-foreground">3 niveles</span>
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Selecciona una dificultad para consultar sus contratos y empezar a jugar.
-          </p>
-          <div
-            className="mt-5 grid gap-3 sm:grid-cols-3"
-            role="group"
-            aria-label="Seleccionar dificultad"
-          >
-            {DIFFICULTIES.map((level) => (
-              <button
-                key={level.id}
-                type="button"
-                aria-label={"Elegir dificultad " + level.label}
-                onClick={() => {
-                  onDifficultyChange(level.id);
-                  setShowMissions(true);
-                }}
-                className={
-                  "group min-h-36 border p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                  (difficulty === level.id ? "border-primary/60" : "border-border")
-                }
-              >
-                <span className="block font-display text-xl font-bold text-primary">
-                  {level.label}
-                </span>
-                <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">
-                  {level.description}
-                </span>
-                <span className="mt-5 block font-mono text-xs uppercase tracking-widest text-accent">
-                  Ver misiones ↗
-                </span>
+    <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:gap-8 sm:py-12">
+      <section className="panel relative overflow-hidden p-5 text-left sm:p-9">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border border-primary/20 sm:h-72 sm:w-72" />
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent glow-accent">
+              Distrito Neón · 2087 / Red clandestina
+            </p>
+            <h1 className="mt-4 font-display text-5xl font-bold leading-[0.95] tracking-[0.08em] text-primary glow-primary sm:text-7xl">
+              NEON
+              <br />
+              BREACH<span className="text-destructive">//</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Cinco corporaciones. Cinco secretos enterrados. Rompe sus cerraduras, recupera los
+              archivos y descubre quién controla realmente el Distrito Neón.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button className={btnAccent + " px-6 py-3"} onClick={() => setShowMissions(true)}>
+                {showMissions ? "Contratos abiertos" : "Entrar en la red ↗"}
               </button>
-            ))}
+              <button className={btnGhost + " py-3"} onClick={onHelp}>
+                Cómo jugar
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="border border-border bg-background/60 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Rango actual</p>
+              <p className="mt-2 font-display text-xl font-bold text-primary sm:text-2xl">{rankProgress.rank.name}</p>
+              <p className="mt-1 font-mono text-xs text-accent">{save.xp.toLocaleString("es")} PX</p>
+            </div>
+            <div className="border border-border bg-background/60 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Archivos</p>
+              <p className="mt-2 font-display text-2xl font-bold text-accent">{completed}<span className="text-sm text-muted-foreground"> / 5</span></p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">Desbloqueados</p>
+            </div>
+            <div className="col-span-2 border border-border bg-background/60 p-4">
+              <div className="flex items-center justify-between gap-3 font-mono text-xs">
+                <span className="uppercase tracking-widest text-muted-foreground">Progreso de rango</span>
+                <span className="text-primary">{rankProgress.current}%</span>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden bg-muted">
+                <div className="h-full bg-accent transition-all" style={{ width: `${rankProgress.current}%` }} />
+              </div>
+              <p className="mt-2 font-mono text-xs text-muted-foreground">
+                {rankProgress.remaining === 0
+                  ? "Rango máximo alcanzado. La red ya conoce tu nombre."
+                  : `${rankProgress.remaining.toLocaleString("es")} PX para el siguiente rango`}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {!showMissions ? (
+        <section className="space-y-4" aria-labelledby="dificultades">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Selecciona protocolo</p>
+              <h2 id="dificultades" className="mt-1 font-display text-2xl font-bold text-foreground sm:text-3xl">
+                Elige tu dificultad
+              </h2>
+            </div>
+            <span className="font-mono text-xs text-muted-foreground">01 / 03 niveles</span>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3" role="group" aria-label="Seleccionar dificultad">
+            {DIFFICULTIES.map((level, index) => {
+              const levelProgress = save.progress[level.id];
+              const levelNames = ["Entrenamiento", "Operación estándar", "Protocolo de élite"];
+              return (
+                <button
+                  key={level.id}
+                  type="button"
+                  aria-label={"Elegir dificultad " + level.label}
+                  onClick={() => {
+                    onDifficultyChange(level.id);
+                    setShowMissions(true);
+                  }}
+                  className={"group panel min-h-48 border p-5 text-left transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[0_0_24px_rgba(0,240,255,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " + (difficulty === level.id ? "border-primary/70" : "border-border")}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs text-muted-foreground">0{index + 1} / PROTOCOLO</span>
+                    <span className="text-primary" aria-hidden="true">{index === 0 ? "◇" : index === 1 ? "⬡" : "✳"}</span>
+                  </div>
+                  <span className="mt-4 block font-display text-2xl font-bold text-primary">{level.label}</span>
+                  <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">{level.description}</span>
+                  <div className="mt-5 flex items-center justify-between border-t border-border pt-3 font-mono text-xs">
+                    <span className="text-muted-foreground">{Math.max(0, levelProgress.unlocked - 1)}/5 archivos</span>
+                    <span className="text-accent group-hover:translate-x-1 transition-transform">Abrir →</span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
       ) : (
-        <section className="panel mt-8 w-full p-4 text-left sm:p-6" aria-labelledby="misiones">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        <section className="panel p-4 text-left sm:p-6" aria-labelledby="misiones">
+          <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                Dificultad seleccionada
-              </p>
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Contratos de la red</p>
               <h2 id="misiones" className="mt-1 font-display text-2xl font-bold text-primary">
-                {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · Misiones
+                {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · Operaciones
               </h2>
+              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+                Completa cada operación para desbloquear el siguiente expediente corporativo.
+              </p>
             </div>
-            <span className="font-mono text-xs text-muted-foreground">
-              Récord: {loaded ? progress.bestScore.toLocaleString("es") : "…"}
-            </span>
+            <div className="font-mono text-xs text-muted-foreground">
+              Récord: <span className="text-accent">{loaded ? progress.bestScore.toLocaleString("es") : "…"}</span>
+            </div>
           </div>
           <button className={btnGhost + " mt-4"} onClick={() => setShowMissions(false)}>
-            ← Volver a dificultades
+            ← Volver al inicio
           </button>
-          <p className="mt-4 font-mono text-xs uppercase tracking-widest text-accent">
-            {missions.length} misiones · Completa una para desbloquear la siguiente
-          </p>
-          <ol className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          <ol className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {missions.map((m, i) => {
               const locked = m.id > progress.unlocked;
+              const cleared = m.id < progress.unlocked;
+              const intel = MISSION_INTEL[i];
               return (
                 <li key={m.id}>
-                  <button
-                    disabled={locked || !loaded}
-                    onClick={() => onStart(i)}
-                    className="h-full w-full border border-border p-3 text-left transition-colors hover:border-accent disabled:cursor-not-allowed disabled:opacity-40"
-                    aria-label={
-                      locked ? `Misión ${m.id} bloqueada` : `Jugar misión ${m.id}: ${m.name}`
-                    }
-                  >
-                    <span className="font-mono text-xs text-muted-foreground">
-                      0{m.id} {locked ? "· BLOQUEADA" : ""}
-                    </span>
-                    <span className="mt-1 block font-semibold text-foreground">{m.name}</span>
-                    <span className="block font-mono text-xs text-muted-foreground">
-                      {m.codeLength} díg · {m.maxAttempts} int · {Math.floor(m.timeLimit / 60)} min
-                    </span>
-                  </button>
+                  <article className={"h-full border p-4 transition-colors " + (locked ? "border-border/50 bg-background/20 opacity-55" : cleared ? "border-accent/50 bg-accent/[0.03]" : "border-primary/60 bg-primary/[0.03]")}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-xs text-muted-foreground">OP-{String(m.id).padStart(2, "0")}</span>
+                      <span className={"font-mono text-[10px] uppercase tracking-widest " + (locked ? "text-muted-foreground" : cleared ? "text-accent" : "text-primary")}>
+                        {locked ? "Cifrado" : cleared ? "Archivo abierto" : "Disponible"}
+                      </span>
+                    </div>
+                    <h3 className="mt-3 font-display text-xl font-bold text-foreground">{m.name}</h3>
+                    <p className="mt-1 font-mono text-xs text-primary">{m.corp}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{m.objective}</p>
+                    <div className="mt-4 flex flex-wrap gap-2 font-mono text-[10px] text-muted-foreground">
+                      <span className="border border-border px-2 py-1">{m.codeLength} DÍGITOS</span>
+                      <span className="border border-border px-2 py-1">{m.maxAttempts} INTENTOS</span>
+                      <span className="border border-border px-2 py-1">{Math.floor(m.timeLimit / 60)} MIN</span>
+                    </div>
+                    {cleared && intel && (
+                      <div className="mt-4 border-t border-accent/30 pt-3">
+                        <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Intel desbloqueada · {intel.title}</p>
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{intel.text}</p>
+                      </div>
+                    )}
+                    <button
+                      disabled={locked || !loaded}
+                      onClick={() => onStart(i)}
+                      className={(locked ? btnGhost : cleared ? btnPrimary : btnAccent) + " mt-5 w-full"}
+                      aria-label={locked ? `Misión ${m.id} bloqueada` : `Jugar misión ${m.id}: ${m.name}`}
+                    >
+                      {locked ? "Acceso denegado" : cleared ? "Repetir operación" : "Iniciar operación →"}
+                    </button>
+                  </article>
                 </li>
               );
             })}
           </ol>
-          <button
-            onClick={onReset}
-            className="mt-4 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-destructive hover:underline"
-          >
-            Reiniciar progreso
-          </button>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+            <p className="font-mono text-xs text-muted-foreground">El progreso se guarda en este dispositivo.</p>
+            <button onClick={onReset} className="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-destructive hover:underline">
+              Reiniciar progreso
+            </button>
+          </div>
         </section>
       )}
     </main>
