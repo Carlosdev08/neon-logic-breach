@@ -705,7 +705,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="panel w-full max-w-lg bg-card p-6"
+        className="panel max-h-[90dvh] w-full max-w-lg overflow-y-auto bg-card p-4 sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
