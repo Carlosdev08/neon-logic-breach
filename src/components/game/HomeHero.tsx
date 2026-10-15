@@ -46,7 +46,7 @@ export function HomeHero({
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button className={btnAccent + " px-6 py-3"} onClick={onEnter}>
-                {showMissions ? "Contratos abiertos" : "Entrar en la red ↗"}
+                Entrar en la red ↗
               </button>
               <button className={btnGhost + " py-3"} onClick={onHelp}>
                 Cómo jugar
