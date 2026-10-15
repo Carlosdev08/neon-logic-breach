@@ -13,6 +13,7 @@ import { play } from "@/game/sound";
 import { getSupabase } from "@/lib/supabase";
 import { TitleScreen, GameScreen, Modal } from "@/components/game/components";
 import { useGameKeyboard, useGameTimer } from "@/components/game/useGameControls";
+import { useGamePersistence } from "@/components/game/useGamePersistence";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 
@@ -26,31 +27,10 @@ const btnDanger = `${btn} border-destructive text-destructive hover:bg-destructi
 export function NeonBreach() {
   const [s, dispatch] = useReducer(reducer, initialState);
   const [save, setSave] = useState<SaveData>(DEFAULT_SAVE);
-  const [loaded, setLoaded] = useState(false);
-  const [gameLoaded, setGameLoaded] = useState(false);
+  const { loaded } = useGamePersistence(s, dispatch, save, setSave);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const prev = useRef<GameState>(s);
-
-  useEffect(() => {
-    setSave(loadSave());
-    const savedGame = loadGameState();
-    if (savedGame) {
-      const restored =
-        savedGame.phase === "playing" ? { ...savedGame, phase: "paused" as const } : savedGame;
-      prev.current = restored;
-      dispatch({ type: "RESTORE", state: restored });
-    }
-    setLoaded(true);
-    setGameLoaded(true);
-  }, []);
-  useEffect(() => {
-    if (loaded) writeSave(save);
-  }, [save, loaded]);
-
-  useEffect(() => {
-    if (gameLoaded) writeGameState(s);
-  }, [s, gameLoaded]);
 
   // Side-effects on transitions: sounds + persistence
   useEffect(() => {
