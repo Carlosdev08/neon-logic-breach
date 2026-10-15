@@ -104,16 +104,22 @@ export function OnlineHub() {
           setError("Usuario: 3–20 caracteres, letras, números o guion bajo.");
           return;
         }
-        const { error: e } = await supabase.auth.signUp({
+        const { data, error: e } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
             data: { username: username.trim() },
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: window.location.origin,
           },
         });
         if (e) throw e;
-        setMessage("Revisa tu correo para confirmar la cuenta.");
+
+        if (data.session) {
+          setMessage("Cuenta creada y sesión iniciada.");
+        } else {
+          setConfirmationSent(true);
+          setMessage("Te hemos enviado un enlace de confirmación. Ábrelo una sola vez desde el dominio público de NEON BREACH.");
+        }
       } else if (mode === "login") {
         const { error: e } = await supabase.auth.signInWithPassword({
           email: email.trim(),
