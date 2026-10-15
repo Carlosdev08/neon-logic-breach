@@ -330,10 +330,10 @@ export function OnlineHub() {
                 </span>
                 <strong className="text-sm">{getLeaderboardUsername(row.profiles)}</strong>
                 <p className="ml-8 text-xs text-muted-foreground">
-                  {row.missions} {row.missions === 1 ? "misión" : "misiones"} · última: {row.difficulty} · {new Date(row.created_at).toLocaleDateString("es-ES")}
+                  {row.missions ?? 1} {(row.missions ?? 1) === 1 ? "misión" : "misiones"} · última: {row.difficulty} · {new Date(row.created_at).toLocaleDateString("es-ES")}
                 </p>
               </div>
-              <span className="font-mono text-accent">{("totalScore" in row ? row.totalScore : row.score).toLocaleString("es-ES")} pts</span>
+              <span className="font-mono text-accent">{(row.totalScore ?? row.score).toLocaleString("es-ES")} pts</span>
             </li>
           ))}
           {scores.length === 0 && (
