@@ -121,7 +121,8 @@ export function loadGameState(): GameState | null {
       !value.input.every((digit) => Number.isInteger(digit) && digit >= 0 && digit <= 9) ||
       new Set(value.input).size !== value.input.length ||
       value.input.length >
-        (getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]?.codeLength ?? 0) ||
+        (getMissionsForDifficulty(value.difficulty as Difficulty)[value.missionIndex!]
+          ?.codeLength ?? 0) ||
       !Array.isArray(value.attempts) ||
       !value.attempts.every(
         (attempt) =>
