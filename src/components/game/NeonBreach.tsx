@@ -1,4 +1,4 @@
-import { useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
 import { DEFAULT_SAVE, type SaveData } from "@/game/storage";
@@ -25,7 +25,35 @@ export function NeonBreach() {
   const { loaded } = useGamePersistence(s, dispatch, save, setSave, prev);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const [activeView, setActiveView] = useState<"home" | "online">("home");
+  const [activeView, setActiveView] = useState<"home" | "online">(() =>
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("view") === "online"
+      ? "online"
+      : "home",
+  );
+
+  const navigateView = (view: "home" | "online") => {
+    setActiveView(view);
+    const url = new URL(window.location.href);
+    if (view === "online") {
+      url.searchParams.set("view", "online");
+    } else {
+      url.searchParams.delete("view");
+    }
+    window.history.pushState({}, "", url);
+  };
+
+  useEffect(() => {
+    const syncViewFromUrl = () => {
+      setActiveView(
+        new URLSearchParams(window.location.search).get("view") === "online"
+          ? "online"
+          : "home",
+      );
+    };
+    window.addEventListener("popstate", syncViewFromUrl);
+    return () => window.removeEventListener("popstate", syncViewFromUrl);
+  }, []);
 
   useGameTransitionEffects(s, prev, save.sound, loaded, setSave);
 
@@ -53,7 +81,7 @@ export function NeonBreach() {
       <div className="flex items-center gap-2">
         {s.phase === "title" && (
           <button
-            onClick={() => setActiveView((view) => (view === "home" ? "online" : "home"))}
+            onClick={() => navigateView(activeView === "home" ? "online" : "home")}
             className={btnGhost}
             aria-pressed={activeView === "online"}
           >
@@ -94,7 +122,7 @@ export function NeonBreach() {
                   Operadores y ranking
                 </h1>
               </div>
-              <button className={btnGhost} onClick={() => setActiveView("home")}>
+              <button className={btnGhost} onClick={() => navigateView("home")}>
                 Volver al juego
               </button>
             </div>
@@ -130,36 +158,86 @@ export function NeonBreach() {
 
       {help && (
         <Modal title="Cómo jugar" onClose={() => setHelp(false)}>
-          <ul className="space-y-2 text-sm leading-relaxed">
-            <li>
-              Cada cerradura usa un código de <b>dígitos únicos</b> (4 dígitos al principio, 5 en
-              las últimas misiones).
-            </li>
-            <li>
-              Introduce un código con el teclado en pantalla o el de tu dispositivo y pulsa{" "}
-              <b>ENVIAR</b> (o Enter).
-            </li>
-            <li>
-              Tras cada intento verás: <span className="text-accent">● exactos</span> (dígito
-              correcto en su posición) y <span className="text-warning">◐ desplazados</span> (dígito
-              correcto en otra posición). No se te dice cuáles.
-            </li>
-            <li>
-              Tienes intentos y tiempo limitados. Si se agotan, salta la alarma y puedes reintentar.
-            </li>
-            <li>
-              Las pistas son progresivas: primero descartan un dígito, después confirman uno y, por
-              último, revelan una posición. El coste aumenta y depende de la dificultad.
-            </li>
-            <li>
-              Puntuación: base de misión + tiempo restante + intentos sobrantes + bonus por racha −
-              pistas.
-            </li>
-            <li>Atajos: Retroceso borra, Supr limpia, Esc o P pausa.</li>
-          </ul>
-          <p className="mt-4 font-mono text-xs text-muted-foreground">
-            Todo es ficción: ningún sistema real es accedido.
-          </p>
+          <div className="max-h-[70dvh] space-y-4 overflow-y-auto pr-1 text-sm leading-relaxed">
+            <section className="border border-primary/30 bg-background/50 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">
+                01 / Objetivo
+              </p>
+              <p className="mt-2">
+                Descifra el código secreto antes de que se agoten el tiempo y los intentos.
+                Los dígitos no se repiten: las primeras misiones usan 4 y las últimas, 5.
+              </p>
+            </section>
+
+            <section className="border border-border p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">
+                02 / Interpreta las señales
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="border border-accent/30 p-3">
+                  <p className="font-display font-bold text-accent">● Exactos</p>
+                  <p className="mt-1 text-muted-foreground">
+                    El dígito es correcto y está en su posición.
+                  </p>
+                </div>
+                <div className="border border-warning/30 p-3">
+                  <p className="font-display font-bold text-warning">◐ Desplazados</p>
+                  <p className="mt-1 text-muted-foreground">
+                    El dígito está en el código, pero en otra posición.
+                  </p>
+                </div>
+              </div>
+              <p className="mt-3 text-muted-foreground">
+                La señal indica cuántos coinciden, no cuáles. Usa cada intento para descartar
+                combinaciones.
+              </p>
+            </section>
+
+            <section className="border border-border p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">
+                03 / Herramientas
+              </p>
+              <ul className="mt-2 space-y-2">
+                <li>
+                  <b>Enviar:</b> prueba la combinación escrita en pantalla o con tu teclado.
+                </li>
+                <li>
+                  <b>Pistas:</b> descartan un dígito, confirman uno o revelan una posición.
+                </li>
+                <li>
+                  <b>Coste:</b> las pistas restan puntos y su precio depende de la dificultad.
+                </li>
+              </ul>
+            </section>
+
+            <section className="border border-border p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">
+                04 / Puntuación y controles
+              </p>
+              <p className="mt-2">
+                Sumas puntos por completar la misión, el tiempo y los intentos que conserves. Las
+                rachas dan bonus; las pistas descuentan puntos.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Retroceso · borrar
+                </span>
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Supr · limpiar
+                </span>
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Esc / P · pausa
+                </span>
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Enter · enviar
+                </span>
+              </div>
+            </section>
+
+            <p className="border-l-2 border-primary/50 pl-3 font-mono text-xs text-muted-foreground">
+              Ficción interactiva: no se accede a sistemas reales.
+            </p>
+          </div>
         </Modal>
       )}
       {confirmReset && (

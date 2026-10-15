@@ -1,5 +1,6 @@
 import { getMissionsForDifficulty, hasUniqueDigits, type Difficulty } from "./logic";
 import type { GameState } from "./reducer";
+// Guest progress is isolated to the current tab; sharing the public URL never shares a save.
 const KEY = "neon-breach:v2";
 export interface DifficultyProgress {
   bestScore: number;
@@ -27,7 +28,7 @@ export const DEFAULT_SAVE: SaveData = {
 };
 export function loadSave(): SaveData {
   try {
-    const raw = localStorage.getItem(KEY) ?? localStorage.getItem("neon-breach:v1");
+    const raw = sessionStorage.getItem(KEY) ?? sessionStorage.getItem("neon-breach:v1");
     if (!raw) return DEFAULT_SAVE;
     const p = JSON.parse(raw) as Partial<SaveData>;
     const oldBest = typeof p.bestScore === "number" ? p.bestScore : 0;
@@ -88,17 +89,18 @@ export function getRankProgress(xp: number) {
 
 export function writeSave(data: SaveData) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(data));
+    sessionStorage.setItem(KEY, JSON.stringify(data));
   } catch {
     /* storage unavailable */
   }
 }
 
+// Keep active missions tab-scoped for the same reason as player progress.
 const GAME_KEY = "neon-breach:active-game:v1";
 
 export function loadGameState(): GameState | null {
   try {
-    const raw = localStorage.getItem(GAME_KEY);
+    const raw = sessionStorage.getItem(GAME_KEY);
     if (!raw) return null;
     const value = JSON.parse(raw) as Partial<GameState>;
     const phases = ["playing", "paused", "won", "lost", "victory"];
@@ -179,13 +181,13 @@ export function loadGameState(): GameState | null {
         value.phase !== "lost" &&
         value.phase !== "victory")
     ) {
-      localStorage.removeItem(GAME_KEY);
+      sessionStorage.removeItem(GAME_KEY);
       return null;
     }
     return value as GameState;
   } catch {
     try {
-      localStorage.removeItem(GAME_KEY);
+      sessionStorage.removeItem(GAME_KEY);
     } catch {
       /* Storage unavailable */
     }
@@ -196,10 +198,10 @@ export function loadGameState(): GameState | null {
 export function writeGameState(state: GameState) {
   try {
     if (state.phase === "title") {
-      localStorage.removeItem(GAME_KEY);
+      sessionStorage.removeItem(GAME_KEY);
       return;
     }
-    localStorage.setItem(GAME_KEY, JSON.stringify(state));
+    sessionStorage.setItem(GAME_KEY, JSON.stringify(state));
   } catch {
     /* Storage unavailable */
   }

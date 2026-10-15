@@ -7,6 +7,7 @@ import { writeGameState } from "@/game/storage";
 describe("NeonBreach application", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    sessionStorage.clear();
     localStorage.clear();
   });
 
@@ -55,7 +56,7 @@ describe("NeonBreach application", () => {
     render(<NeonBreach />);
 
     expect(await screen.findByRole("heading", { name: "EN PAUSA" })).toBeInTheDocument();
-    expect(localStorage.getItem("neon-breach:active-game:v1")).toContain('"phase":"paused"');
+    expect(sessionStorage.getItem("neon-breach:active-game:v1")).toContain('"phase":"paused"');
   });
 
   it("starts a mission, accepts keyboard input, and supports pause/resume", async () => {
@@ -94,7 +95,7 @@ describe("NeonBreach application", () => {
   });
 
   it("confirms progress reset rather than clearing it immediately", async () => {
-    localStorage.setItem(
+    sessionStorage.setItem(
       "neon-breach:v2",
       JSON.stringify({ bestScore: 900, unlocked: 3, sound: false }),
     );
@@ -104,11 +105,11 @@ describe("NeonBreach application", () => {
     fireEvent.click(screen.getByRole("button", { name: "Elegir dificultad Medio" }));
     fireEvent.click(screen.getByRole("button", { name: "Reiniciar progreso" }));
     expect(screen.getByRole("dialog", { name: "¿Reiniciar progreso?" })).toBeInTheDocument();
-    expect(localStorage.getItem("neon-breach:v2")).toContain("900");
+    expect(sessionStorage.getItem("neon-breach:v2")).toContain("900");
 
     fireEvent.click(screen.getByRole("button", { name: "Borrar" }));
     await waitFor(() => {
-      expect(JSON.parse(localStorage.getItem("neon-breach:v2")!)).toMatchObject({
+      expect(JSON.parse(sessionStorage.getItem("neon-breach:v2")!)).toMatchObject({
         bestScore: 0,
         unlocked: 1,
         sound: false,
