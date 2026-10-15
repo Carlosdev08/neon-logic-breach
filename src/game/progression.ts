@@ -9,8 +9,7 @@ export interface MissionWinProgress {
 
 /** Pure domain rule for the rewards granted after a mission is won. */
 export function calculateMissionWinProgress(state: GameState): MissionWinProgress {
-  const difficultyBonus =
-    state.difficulty === "facil" ? 0 : state.difficulty === "medio" ? 25 : 50;
+  const difficultyBonus = state.difficulty === "facil" ? 0 : state.difficulty === "medio" ? 25 : 50;
 
   return {
     xpGain: 50 + Math.floor((state.lastScore?.total ?? 0) / 20) + difficultyBonus,
