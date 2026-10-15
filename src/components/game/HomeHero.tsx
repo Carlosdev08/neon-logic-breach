@@ -61,9 +61,7 @@ export function HomeHero({
             <p className="mt-2 font-display text-xl font-bold text-primary sm:text-2xl">
               {rankProgress.rank.name}
             </p>
-            <p className="mt-1 font-mono text-xs text-accent">
-              {save.xp.toLocaleString("es")} PX
-            </p>
+            <p className="mt-1 font-mono text-xs text-accent">{save.xp.toLocaleString("es")} PX</p>
           </div>
           <div className="border border-border bg-background/60 p-4">
             <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
