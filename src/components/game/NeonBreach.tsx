@@ -27,10 +27,10 @@ const btnDanger = `${btn} border-destructive text-destructive hover:bg-destructi
 export function NeonBreach() {
   const [s, dispatch] = useReducer(reducer, initialState);
   const [save, setSave] = useState<SaveData>(DEFAULT_SAVE);
+  const prev = useRef<GameState>(s);
   const { loaded } = useGamePersistence(s, dispatch, save, setSave, prev);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const prev = useRef<GameState>(s);
 
   // Side-effects on transitions: sounds + persistence
   useEffect(() => {
