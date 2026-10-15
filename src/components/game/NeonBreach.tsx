@@ -1,19 +1,12 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useReducer, useRef, useState } from "react";
 import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
-import {
-  loadSave,
-  writeSave,
-  loadGameState,
-  writeGameState,
-  DEFAULT_SAVE,
-  type SaveData,
-} from "@/game/storage";
-import { play } from "@/game/sound";
+import { DEFAULT_SAVE, type SaveData } from "@/game/storage";
 import { TitleScreen, GameScreen, Modal } from "@/components/game/components";
 import { useGameKeyboard, useGameTimer } from "@/components/game/useGameControls";
 import { useGamePersistence } from "@/components/game/useGamePersistence";
 import { useSubmitMissionScore } from "@/components/game/useSubmitMissionScore";
+import { useGameTransitionEffects } from "@/components/game/useGameTransitionEffects";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 
@@ -32,39 +25,7 @@ export function NeonBreach() {
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  // Side-effects on transitions: sounds + persistence
-  useEffect(() => {
-    const p = prev.current;
-    prev.current = s;
-    if (p.attempts.length < s.attempts.length && s.phase === "playing") play("error", save.sound);
-    if (p.hints.length < s.hints.length) play("hint", save.sound);
-    if (p.phase !== s.phase) {
-      if (s.phase === "won") {
-        play("win", save.sound);
-        const xpGain =
-          50 +
-          Math.floor((s.lastScore?.total ?? 0) / 20) +
-          (s.difficulty === "facil" ? 0 : s.difficulty === "medio" ? 25 : 50);
-        setSave((v) => ({
-          ...v,
-          xp: v.xp + xpGain,
-          unlocked: Math.max(v.progress[s.difficulty].unlocked, Math.min(5, s.missionIndex + 2)),
-          bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
-          progress: {
-            ...v.progress,
-            [s.difficulty]: {
-              unlocked: Math.max(
-                v.progress[s.difficulty].unlocked,
-                Math.min(5, s.missionIndex + 2),
-              ),
-              bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
-            },
-          },
-        }));
-      }
-      if (s.phase === "lost") play("lose", save.sound);
-    }
-  }, [s, save.sound]);
+  useGameTransitionEffects(s, prev, save.sound, setSave);
 
   useSubmitMissionScore(s);
   useGameTimer(s.phase, dispatch);
