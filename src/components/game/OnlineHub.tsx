@@ -21,6 +21,7 @@ export function OnlineHub() {
  const [busy,setBusy] = useState(false);
  const [message,setMessage] = useState("");
  const [error,setError] = useState("");
+ const [recoveryReady,setRecoveryReady] = useState(false);
  const loadScores = useCallback(async () => {
   if (!supabase) return;
   let query = supabase.from("game_scores").select("id,score,difficulty,created_at,profiles(username)").order("score",{ascending:false}).limit(10);
@@ -31,19 +32,22 @@ export function OnlineHub() {
   if(queryError) setError("No se pudo cargar el ranking. Revisa la configuración de Supabase.");
   else setScores((data??[]) as unknown as Score[]);
  },[supabase,period]);
- useEffect(()=>{ if(!supabase)return; let active=true; supabase.auth.getUser().then(({data})=>{if(active)setUser(data.user)}); const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>setUser(session?.user??null)); return ()=>{active=false;subscription.unsubscribe()}; },[supabase]);
+ useEffect(()=>{ if(!supabase)return; let active=true; supabase.auth.getUser().then(({data})=>{if(active)setUser(data.user)}); const {data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{setUser(session?.user??null); if(event==="PASSWORD_RECOVERY"){setRecoveryReady(true);setMode("reset");setMessage("Introduce una nueva contraseña para completar la recuperación.");setError("");}}); return ()=>{active=false;subscription.unsubscribe()}; },[supabase]);
  useEffect(()=>{void loadScores()},[loadScores]);
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault(); if(!supabase)return; setBusy(true);setError("");setMessage("");
   try {
-   if(mode==="signup"){
+   if(recoveryReady && mode==="reset"){
+    const {error:e}=await supabase.auth.updateUser({password});if(e)throw e;
+    setRecoveryReady(false);setPassword("");setMode("login");setMessage("Contraseña actualizada. Ya puedes iniciar sesión.");await supabase.auth.signOut();
+   } else if(mode==="signup"){
     if(!/^[A-Za-z0-9_]{3,20}$/.test(username.trim())){setError("Usuario: 3–20 caracteres, letras, números o guion bajo.");return}
-    const {error:e}=await supabase.auth.signUp({email:email.trim(),password,options:{data:{username:username.trim()},emailRedirectTo:window.location.origin}});
+    const {error:e}=await supabase.auth.signUp({email:email.trim(),password,options:{data:{username:username.trim()},emailRedirectTo:`${window.location.origin}/`}});
     if(e)throw e;setMessage("Revisa tu correo para confirmar la cuenta.");
    } else if(mode==="login"){
     const {error:e}=await supabase.auth.signInWithPassword({email:email.trim(),password});if(e)throw e;setMessage("Sesión iniciada.");
    } else {
-    const {error:e}=await supabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin});if(e)throw e;
+    const {error:e}=await supabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:`${window.location.origin}/`});if(e)throw e;
     setMessage("Si el correo está registrado, recibirás instrucciones de recuperación.");
    }
   }catch(e){setError(e instanceof Error?e.message:"No se pudo completar la operación.");}finally{setBusy(false)}
@@ -55,8 +59,8 @@ export function OnlineHub() {
   <><div className="mt-4 flex flex-wrap gap-2">{([["login","Entrar"],["signup","Crear cuenta"],["reset","Recuperar acceso"]] as const).map(([v,label])=><button key={v} className={button} onClick={()=>{setMode(v);setError("");setMessage("")}}>{label}</button>)}</div>
   <form className="mt-4 space-y-3" onSubmit={e=>void submit(e)}>{mode==="signup"&&<label className="block text-xs text-muted-foreground">Nombre de usuario<input className={field} autoComplete="username" minLength={3} maxLength={20} pattern="[A-Za-z0-9_]+" required value={username} onChange={e=>setUsername(e.target.value)}/></label>}
   <label className="block text-xs text-muted-foreground">Correo electrónico<input className={field} type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)}/></label>
-  {mode!=="reset"&&<label className="block text-xs text-muted-foreground">Contraseña<input className={field} type="password" autoComplete={mode==="signup"?"new-password":"current-password"} minLength={mode==="signup"?8:undefined} required value={password} onChange={e=>setPassword(e.target.value)}/></label>}
-  <button className={button} disabled={busy}>{busy?"Procesando…":mode==="signup"?"Crear cuenta":mode==="reset"?"Enviar recuperación":"Iniciar sesión"}</button></form></>}
+  {(mode!=="reset" || recoveryReady)&&<label className="block text-xs text-muted-foreground">Contraseña<input className={field} type="password" autoComplete={mode==="signup"?"new-password":"current-password"} minLength={mode==="signup"||recoveryReady?8:undefined} required value={password} onChange={e=>setPassword(e.target.value)}/></label>}
+  <button className={button} disabled={busy}>{busy?"Procesando…":recoveryReady?"Actualizar contraseña":mode==="signup"?"Crear cuenta":mode==="reset"?"Enviar recuperación":"Iniciar sesión"}</button></form></>}
   {message&&<p role="status" className="mt-3 text-sm text-primary">{message}</p>}{error&&<p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}</div>
   <div><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-display text-xl font-bold">TOP OPERADORES</h3><div className="flex gap-1">{([["global","Mundial"],["weekly","Semanal"],["daily","Hoy"]] as const).map(([v,label])=><button key={v} className={button+(period===v?" bg-primary text-primary-foreground":"")} aria-pressed={period===v} onClick={()=>setPeriod(v)}>{label}</button>)}</div></div>
   <ol className="mt-4 space-y-2">{scores.map((row,i)=><li key={row.id} className="flex items-center justify-between gap-3 border border-border/70 bg-background/50 px-3 py-3"><div><span className="mr-3 font-mono text-primary">{String(i+1).padStart(2,"0")}</span><strong className="text-sm">{getUsername(row)}</strong><p className="ml-8 text-xs text-muted-foreground">{row.difficulty} · {new Date(row.created_at).toLocaleDateString("es-ES")}</p></div><span className="font-mono text-accent">{row.score.toLocaleString("es-ES")} pts</span></li>)}{scores.length===0&&<li className="border border-border/70 p-4 text-sm text-muted-foreground">Todavía no hay puntuaciones en este periodo.</li>}</ol>
