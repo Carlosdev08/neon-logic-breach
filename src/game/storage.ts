@@ -5,6 +5,7 @@ export interface DifficultyProgress {
   unlocked: number;
 }
 export interface SaveData {
+  xp: number;
   bestScore: number;
   unlocked: number;
   sound: boolean;
@@ -12,6 +13,7 @@ export interface SaveData {
   progress: Record<Difficulty, DifficultyProgress>;
 }
 export const DEFAULT_SAVE: SaveData = {
+  xp: 0,
   bestScore: 0,
   unlocked: 1,
   sound: true,
@@ -50,6 +52,7 @@ export function loadSave(): SaveData {
     const difficulty =
       p.difficulty === "facil" || p.difficulty === "avanzado" ? p.difficulty : "medio";
     return {
+      xp: typeof p.xp === "number" && Number.isFinite(p.xp) ? Math.max(0, Math.floor(p.xp)) : 0,
       bestScore: progress[difficulty].bestScore,
       unlocked: progress[difficulty].unlocked,
       sound: typeof p.sound === "boolean" ? p.sound : true,
@@ -60,6 +63,28 @@ export function loadSave(): SaveData {
     return DEFAULT_SAVE;
   }
 }
+export const XP_RANKS = [
+  { name: "Recluta", minXp: 0, nextXp: 300 },
+  { name: "Operadora", minXp: 300, nextXp: 800 },
+  { name: "Intrusa", minXp: 800, nextXp: 1600 },
+  { name: "Fantasma", minXp: 1600, nextXp: 3000 },
+  { name: "Leyenda Neón", minXp: 3000, nextXp: null },
+] as const;
+
+export function getRankForXp(xp: number) {
+  return [...XP_RANKS].reverse().find((rank) => xp >= rank.minXp) ?? XP_RANKS[0];
+}
+
+export function getRankProgress(xp: number) {
+  const rank = getRankForXp(xp);
+  if (rank.nextXp === null) return { rank, current: 100, remaining: 0 };
+  return {
+    rank,
+    current: Math.min(100, Math.round(((xp - rank.minXp) / (rank.nextXp - rank.minXp)) * 100)),
+    remaining: Math.max(0, rank.nextXp - xp),
+  };
+}
+
 export function writeSave(data: SaveData) {
   try {
     localStorage.setItem(KEY, JSON.stringify(data));

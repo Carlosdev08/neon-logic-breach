@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, refactor/solid-architecture, visual-preview, fix/victory-overlay-mobile]
+    branches: [main, refactor/solid-architecture, visual-preview, fix/victory-overlay-mobile, feature/progressive-hints-balance, feature/professional-home-ranks-story]
 
 permissions:
   contents: write
@@ -39,7 +39,7 @@ jobs:
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
       - name: Format preview branch
-        if: github.ref == 'refs/heads/visual-preview' || github.ref == 'refs/heads/fix/victory-overlay-mobile'
+        if: github.ref == 'refs/heads/visual-preview' || github.ref == 'refs/heads/fix/victory-overlay-mobile' || github.ref == 'refs/heads/feature/progressive-hints-balance' || github.ref == 'refs/heads/feature/professional-home-ranks-story'
         run: bun run format
       - name: Run tests
         run: bun run test

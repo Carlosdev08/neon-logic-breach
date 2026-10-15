@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_SAVE, loadSave, writeSave } from "./storage";
+import { DEFAULT_SAVE, getRankForXp, getRankProgress, loadSave, writeSave } from "./storage";
 
 describe("save storage", () => {
   beforeEach(() => {
@@ -52,6 +52,14 @@ describe("save storage", () => {
       JSON.stringify({ bestScore: "bad", unlocked: 100, sound: "yes" }),
     );
     expect(loadSave()).toMatchObject({ bestScore: 0, unlocked: 5, sound: true });
+  });
+  it("normalizes persisted XP and calculates rank progression", () => {
+    localStorage.setItem("neon-breach:v2", JSON.stringify({ xp: 850 }));
+    expect(loadSave().xp).toBe(850);
+    expect(getRankForXp(0).name).toBe("Recluta");
+    expect(getRankForXp(850).name).toBe("Intrusa");
+    expect(getRankProgress(850)).toMatchObject({ current: 6, remaining: 750 });
+    expect(getRankForXp(3500).name).toBe("Leyenda Neón");
   });
   it("does not throw when storage writes are unavailable", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {

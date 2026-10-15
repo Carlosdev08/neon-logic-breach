@@ -6,6 +6,7 @@ import {
   scoreGuess,
   nextHint,
   computeScore,
+  hintPenaltyFor,
   hasUniqueDigits,
   type Feedback,
   type Hint,
@@ -160,11 +161,15 @@ export function reducer(s: GameState, a: Action): GameState {
       if (s.hints.length >= m.maxHints) return s;
       const h = nextHint(s.secret, s.hints, createRng(s.seed + 97 * (s.hints.length + 1)));
       if (!h) return s;
+      const nextHints = [...s.hints, h];
+      const penalty = hintPenaltyFor(nextHints, s.difficulty) - hintPenaltyFor(s.hints, s.difficulty);
       const text =
         h.kind === "absent"
           ? `> Pista: el dígito ${h.digit} NO forma parte del código.`
-          : `> Pista: la posición ${h.index + 1} contiene el ${h.digit}.`;
-      return log({ ...s, hints: [...s.hints, h] }, `${text} (−150 pts)`, "warn");
+          : h.kind === "present"
+            ? `> Pista: el dígito ${h.digit} SÍ está en el código, pero aún no sabes dónde.`
+            : `> Pista: la posición ${h.index + 1} contiene el ${h.digit}.`;
+      return log({ ...s, hints: nextHints }, `${text} (−${penalty} pts)`, "warn");
     }
     case "SUBMIT": {
       if (s.input.length !== m.codeLength || !hasUniqueDigits(s.input)) return s;
@@ -173,7 +178,7 @@ export function reducer(s: GameState, a: Action): GameState {
       let next: GameState = { ...s, attempts, input: [] };
       next = log(
         next,
-        `> Inyectando ${s.input.join("")} → ${feedback.exact} exactos, ${feedback.misplaced} desplazados.`,
+        `> Inyectando ${s.input.join("")} → ${feedback.exact} ${feedback.exact === 1 ? "exacto" : "exactos"}, ${feedback.misplaced} ${feedback.misplaced === 1 ? "desplazado" : "desplazados"}.`,
         feedback.exact > 0 ? "ok" : "info",
       );
       if (feedback.exact === m.codeLength) {
@@ -182,6 +187,7 @@ export function reducer(s: GameState, a: Action): GameState {
           attemptsUsed: attempts.length,
           timeLeft: s.timeLeft,
           hintsUsed: s.hints.length,
+          hintPenalty: hintPenaltyFor(s.hints, s.difficulty),
           streak: s.streak,
         });
         return log(

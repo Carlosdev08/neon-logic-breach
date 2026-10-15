@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import { HINT_PENALTY, type Difficulty } from "@/game/logic";
+import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
 import { loadSave, writeSave, DEFAULT_SAVE, type SaveData } from "@/game/storage";
 import { play } from "@/game/sound";
@@ -40,8 +40,13 @@ export function NeonBreach() {
     if (p.phase !== s.phase) {
       if (s.phase === "won") {
         play("win", save.sound);
+        const xpGain =
+          50 +
+          Math.floor((s.lastScore?.total ?? 0) / 20) +
+          (s.difficulty === "facil" ? 0 : s.difficulty === "medio" ? 25 : 50);
         setSave((v) => ({
           ...v,
+          xp: v.xp + xpGain,
           unlocked: Math.max(v.progress[s.difficulty].unlocked, Math.min(5, s.missionIndex + 2)),
           bestScore: Math.max(v.progress[s.difficulty].bestScore, s.runScore),
           progress: {
@@ -150,8 +155,7 @@ export function NeonBreach() {
               Tienes intentos y tiempo limitados. Si se agotan, salta la alarma y puedes reintentar.
             </li>
             <li>
-              Las pistas revelan un dígito ausente o una posición, pero cuestan {HINT_PENALTY}{" "}
-              puntos.
+              Las pistas son progresivas: primero descartan un dígito, después confirman uno y, por último, revelan una posición. El coste aumenta y depende de la dificultad.
             </li>
             <li>
               Puntuación: base de misión + tiempo restante + intentos sobrantes + bonus por racha −
