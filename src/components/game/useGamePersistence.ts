@@ -1,11 +1,11 @@
-import { useEffect, useState, type Dispatch, type MutableRefObject, type SetStateAction } from "react";
 import {
-  loadGameState,
-  loadSave,
-  writeGameState,
-  writeSave,
-  type SaveData,
-} from "@/game/storage";
+  useEffect,
+  useState,
+  type Dispatch,
+  type MutableRefObject,
+  type SetStateAction,
+} from "react";
+import { loadGameState, loadSave, writeGameState, writeSave, type SaveData } from "@/game/storage";
 import type { Action, GameState } from "@/game/reducer";
 
 /**
@@ -28,16 +28,14 @@ export function useGamePersistence(
 
     if (savedGame) {
       const restored =
-        savedGame.phase === "playing"
-          ? { ...savedGame, phase: "paused" as const }
-          : savedGame;
+        savedGame.phase === "playing" ? { ...savedGame, phase: "paused" as const } : savedGame;
       previousState.current = restored;
       dispatch({ type: "RESTORE", state: restored });
     }
 
     setLoaded(true);
     setGameLoaded(true);
-  }, [dispatch, setSave]);
+  }, [dispatch, previousState, setSave]);
 
   useEffect(() => {
     if (loaded) writeSave(save);
