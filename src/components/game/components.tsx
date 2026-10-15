@@ -166,7 +166,7 @@ export function TitleScreen({
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Contratos de la red</p>
               <h2 id="misiones" className="mt-1 font-display text-2xl font-bold text-primary">
-                {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · Operaciones
+                {DIFFICULTIES.find((d) => d.id === difficulty)?.label} · Misiones
               </h2>
               <p className="mt-2 max-w-xl text-sm text-muted-foreground">
                 Completa cada operación para desbloquear el siguiente expediente corporativo.
