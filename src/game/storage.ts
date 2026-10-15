@@ -1,5 +1,7 @@
 import type { Difficulty } from "./logic";
+import type { GameState } from "./reducer";
 const KEY = "neon-breach:v2";
+const SESSION_KEY = "neon-breach:active-session:v1";
 export interface DifficultyProgress {
   bestScore: number;
   unlocked: number;
@@ -88,6 +90,52 @@ export function getRankProgress(xp: number) {
 export function writeSave(data: SaveData) {
   try {
     localStorage.setItem(KEY, JSON.stringify(data));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function loadGameSession(): GameState | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const value = JSON.parse(raw) as Partial<GameState>;
+    const validPhases = ["playing", "paused", "won", "lost", "victory"];
+    if (
+      !validPhases.includes(value.phase ?? "") ||
+      typeof value.missionIndex !== "number" ||
+      !["facil", "medio", "avanzado"].includes(value.difficulty ?? "") ||
+      !Array.isArray(value.secret) ||
+      !Array.isArray(value.input) ||
+      !Array.isArray(value.attempts) ||
+      !Array.isArray(value.hints) ||
+      !Array.isArray(value.log) ||
+      typeof value.timeLeft !== "number" ||
+      typeof value.seed !== "number"
+    ) {
+      return null;
+    }
+    return value as GameState;
+  } catch {
+    return null;
+  }
+}
+
+export function writeGameSession(state: GameState) {
+  try {
+    if (state.phase === "title") {
+      localStorage.removeItem(SESSION_KEY);
+      return;
+    }
+    localStorage.setItem(SESSION_KEY, JSON.stringify(state));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function clearGameSession() {
+  try {
+    localStorage.removeItem(SESSION_KEY);
   } catch {
     /* storage unavailable */
   }
