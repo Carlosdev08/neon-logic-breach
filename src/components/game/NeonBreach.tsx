@@ -198,9 +198,15 @@ export function NeonBreach() {
                 03 / Herramientas
               </p>
               <ul className="mt-2 space-y-2">
-                <li><b>Enviar:</b> prueba la combinación escrita en pantalla o con tu teclado.</li>
-                <li><b>Pistas:</b> descartan un dígito, confirman uno o revelan una posición.</li>
-                <li><b>Coste:</b> las pistas restan puntos y su precio depende de la dificultad.</li>
+                <li>
+                  <b>Enviar:</b> prueba la combinación escrita en pantalla o con tu teclado.
+                </li>
+                <li>
+                  <b>Pistas:</b> descartan un dígito, confirman uno o revelan una posición.
+                </li>
+                <li>
+                  <b>Coste:</b> las pistas restan puntos y su precio depende de la dificultad.
+                </li>
               </ul>
             </section>
 
@@ -209,14 +215,22 @@ export function NeonBreach() {
                 04 / Puntuación y controles
               </p>
               <p className="mt-2">
-                Sumas puntos por completar la misión, el tiempo y los intentos que conserves.
-                Las rachas dan bonus; las pistas descuentan puntos.
+                Sumas puntos por completar la misión, el tiempo y los intentos que conserves. Las
+                rachas dan bonus; las pistas descuentan puntos.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="border border-border px-2 py-1 font-mono text-xs">Retroceso · borrar</span>
-                <span className="border border-border px-2 py-1 font-mono text-xs">Supr · limpiar</span>
-                <span className="border border-border px-2 py-1 font-mono text-xs">Esc / P · pausa</span>
-                <span className="border border-border px-2 py-1 font-mono text-xs">Enter · enviar</span>
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Retroceso · borrar
+                </span>
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Supr · limpiar
+                </span>
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Esc / P · pausa
+                </span>
+                <span className="border border-border px-2 py-1 font-mono text-xs">
+                  Enter · enviar
+                </span>
               </div>
             </section>
 
