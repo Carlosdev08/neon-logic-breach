@@ -118,7 +118,9 @@ export function OnlineHub() {
           setMessage("Cuenta creada y sesión iniciada.");
         } else {
           setConfirmationSent(true);
-          setMessage("Te hemos enviado un enlace de confirmación. Ábrelo una sola vez desde el dominio público de NEON BREACH.");
+          setMessage(
+            "Te hemos enviado un enlace de confirmación. Ábrelo una sola vez desde el dominio público de NEON BREACH.",
+          );
         }
       } else if (mode === "login") {
         const { error: e } = await supabase.auth.signInWithPassword({
@@ -275,7 +277,9 @@ export function OnlineHub() {
                   options: { emailRedirectTo: window.location.origin },
                 });
                 if (resendError) throw resendError;
-                setMessage("Nuevo correo enviado. Espera al menos un minuto antes de volver a solicitarlo.");
+                setMessage(
+                  "Nuevo correo enviado. Espera al menos un minuto antes de volver a solicitarlo.",
+                );
               } catch (e) {
                 setError(e instanceof Error ? e.message : "No se pudo reenviar el correo.");
               } finally {
