@@ -1,7 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { getLeaderboardPeriodStart, getLeaderboardUsername } from "./leaderboard";
+import { aggregateLeaderboardScores, getLeaderboardPeriodStart, getLeaderboardUsername } from "./leaderboard";
 
 describe("leaderboard helpers", () => {
+  it("sums mission scores and returns one row per user", () => {
+    const rows = aggregateLeaderboardScores([
+      { user_id: "u1", score: 990, difficulty: "facil", created_at: "2026-10-16T10:00:00Z", profiles: { username: "CariodDev" }, id: "1" },
+      { user_id: "u1", score: 700, difficulty: "facil", created_at: "2026-10-16T09:00:00Z", profiles: { username: "CariodDev" }, id: "2" },
+      { user_id: "u2", score: 1200, difficulty: "medio", created_at: "2026-10-15T10:00:00Z", profiles: { username: "Otro" }, id: "3" },
+    ]);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({ user_id: "u2", totalScore: 1200, missions: 1 });
+    expect(rows[1]).toMatchObject({ user_id: "u1", totalScore: 1690, missions: 2 });
+  });
+
   it("does not apply a date boundary to the global leaderboard", () => {
     expect(getLeaderboardPeriodStart("global", new Date("2026-10-15T12:00:00"))).toBeNull();
   });
