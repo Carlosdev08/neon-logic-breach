@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { getSupabase, isOnlineConfigured } from "@/lib/supabase";
+import { getLeaderboardPeriodStart, getLeaderboardUsername, type LeaderboardPeriod } from "@/game/leaderboard";
 
-type Period = "global" | "weekly" | "daily";
 type Score = {
   id: string;
   score: number;
@@ -15,8 +15,6 @@ const field =
   "mt-1 w-full border border-border bg-background px-3 py-2 font-mono text-sm text-foreground";
 const button =
   "border border-primary px-3 py-2 font-mono text-xs uppercase tracking-wider text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50";
-const getUsername = (row: Score) =>
-  (Array.isArray(row.profiles) ? row.profiles[0]?.username : row.profiles?.username) ?? "Operador";
 
 export function OnlineHub() {
   const supabase = getSupabase();
@@ -25,7 +23,7 @@ export function OnlineHub() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup" | "reset">("login");
-  const [period, setPeriod] = useState<Period>("global");
+  const [period, setPeriod] = useState<LeaderboardPeriod>("global");
   const [scores, setScores] = useState<Score[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -38,16 +36,8 @@ export function OnlineHub() {
       .select("id,score,difficulty,created_at,profiles(username)")
       .order("score", { ascending: false })
       .limit(10);
-    const start = new Date();
-    if (period === "weekly") {
-      start.setHours(0, 0, 0, 0);
-      start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
-      query = query.gte("created_at", start.toISOString());
-    }
-    if (period === "daily") {
-      start.setHours(0, 0, 0, 0);
-      query = query.gte("created_at", start.toISOString());
-    }
+    const start = getLeaderboardPeriodStart(period);
+    if (start) query = query.gte("created_at", start.toISOString());
     const { data, error: queryError } = await query;
     if (queryError) setError("No se pudo cargar el ranking. Revisa la configuración de Supabase.");
     else setScores((data ?? []) as unknown as Score[]);
@@ -295,7 +285,7 @@ export function OnlineHub() {
                 <span className="mr-3 font-mono text-primary">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <strong className="text-sm">{getUsername(row)}</strong>
+                <strong className="text-sm">{getLeaderboardUsername(row.profiles)}</strong>
                 <p className="ml-8 text-xs text-muted-foreground">
                   {row.difficulty} · {new Date(row.created_at).toLocaleDateString("es-ES")}
                 </p>
