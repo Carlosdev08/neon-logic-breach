@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, refactor/solid-architecture, visual-preview, fix/victory-overlay-mobile, feature/progressive-hints-balance, feature/professional-home-ranks-story, fix/refresh-persistence-clean-main]
+    branches: [main, refactor/solid-architecture, visual-preview, fix/victory-overlay-mobile, feature/progressive-hints-balance, feature/professional-home-ranks-story, fix/refresh-persistence-clean-main, feat/player-profile-dashboard]
 
 permissions:
   contents: read
 
 concurrency:
-  group: validate-${{ github.ref }}
+  group: validate-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -33,3 +33,5 @@ jobs:
         run: bun run build
       - name: Lint
         run: bun run lint
+      - name: Verify formatting
+        run: bunx prettier --check src/components/game/OnlineHub.tsx
