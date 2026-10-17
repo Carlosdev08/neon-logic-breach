@@ -3,14 +3,10 @@ import { DIFFICULTIES, getMissionsForDifficulty, type Difficulty } from "@/game/
 import { getRankProgress, type SaveData } from "@/game/storage";
 import { HomeHero } from "@/components/game/HomeHero";
 
-const btn =
-  "font-mono uppercase tracking-wider text-sm px-4 py-2 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
-const btnPrimary =
-  `${btn} border-primary text-primary hover:bg-primary hover:text-primary-foreground`;
-const btnAccent =
-  `${btn} border-accent bg-accent text-accent-foreground hover:bg-accent/80 font-semibold`;
-const btnGhost =
-  `${btn} border-border text-muted-foreground hover:text-foreground hover:border-primary`;
+const btn = "font-mono uppercase tracking-wider text-sm px-4 py-2 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+const btnPrimary = `${btn} border-primary text-primary hover:bg-primary hover:text-primary-foreground`;
+const btnAccent = `${btn} border-accent bg-accent text-accent-foreground hover:bg-accent/80 font-semibold`;
+const btnGhost = `${btn} border-border text-muted-foreground hover:text-foreground hover:border-primary`;
 
 const MISSION_INTEL = [
   {
