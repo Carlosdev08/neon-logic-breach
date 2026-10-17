@@ -4,7 +4,9 @@ export type GameView = "home" | "online";
 
 function readViewFromUrl(): GameView {
   if (typeof window === "undefined") return "home";
-  return new URLSearchParams(window.location.search).get("view") === "online" ? "online" : "home";
+  return new URLSearchParams(window.location.search).get("view") === "online"
+    ? "online"
+    : "home";
 }
 
 /** Keeps the SPA view synchronized with the URL and browser history. */
