@@ -534,7 +534,9 @@ export function OnlineHub() {
                   <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
                     Progreso al siguiente rango
                   </p>
-                  <p className="font-mono text-sm font-bold text-primary">{rankProgress.current}%</p>
+                  <p className="font-mono text-sm font-bold text-primary">
+                    {rankProgress.current}%
+                  </p>
                 </div>
                 <div
                   className="mt-3 h-3 overflow-hidden border border-primary/40 bg-muted/40"
@@ -578,13 +580,17 @@ export function OnlineHub() {
                 {myStats.missions > 0 ? myStats.missions : "—"}
               </p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                {myStats.missions > 0 ? "Resultados online disponibles" : "Aún sin resultados online"}
+                {myStats.missions > 0
+                  ? "Resultados online disponibles"
+                  : "Aún sin resultados online"}
               </p>
             </div>
           </div>
 
           <div className="flex min-w-0 items-center gap-4 border border-border/80 bg-background/40 p-4 sm:p-5">
-            <span className="font-mono text-2xl text-primary" aria-hidden="true">▦</span>
+            <span className="font-mono text-2xl text-primary" aria-hidden="true">
+              ▦
+            </span>
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
                 Cuenta desde
@@ -625,7 +631,8 @@ export function OnlineHub() {
             </button>
           </div>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            La experiencia local del juego y las puntuaciones online son sistemas separados. Solo se muestran aquí los resultados online sincronizados.
+            La experiencia local del juego y las puntuaciones online son sistemas separados. Solo se
+            muestran aquí los resultados online sincronizados.
           </p>
         </div>
       ) : section === "ranking" ? (
