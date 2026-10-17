@@ -13,8 +13,7 @@ type GameHeaderProps = {
 
 const buttonClass =
   "font-mono uppercase tracking-wider text-sm px-4 py-2 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
-const ghostButtonClass =
-  `${buttonClass} border-border text-muted-foreground hover:text-foreground hover:border-primary`;
+const ghostButtonClass = `${buttonClass} border-border text-muted-foreground hover:text-foreground hover:border-primary`;
 
 /** Presentational header. All state changes are supplied by the game coordinator. */
 export function GameHeader({
