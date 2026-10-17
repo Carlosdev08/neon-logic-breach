@@ -1,14 +1,12 @@
-import { TitleScreen } from "@/components/game/TitleScreen";
-import { useEffect, useRef, useState, type ReactNode, type Dispatch } from "react";
+export { TitleScreen } from "@/components/game/TitleScreen";
+import { useEffect, useRef, type ReactNode, type Dispatch } from "react";
 import {
   HINT_PENALTIES,
-  DIFFICULTIES,
   getMissionsForDifficulty,
   type Difficulty,
 } from "@/game/logic";
 import { type GameState, type Action } from "@/game/reducer";
 import { play } from "@/game/sound";
-import type { SaveData } from "@/game/storage";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 const fmt = (t: number) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
