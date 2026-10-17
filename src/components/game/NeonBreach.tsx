@@ -59,17 +59,9 @@ export function NeonBreach() {
       {s.phase === "title" ? (
         activeView === "online" ? (
           <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">
-                  Red global
-                </p>
-                <h1 className="mt-1 font-display text-2xl font-bold text-foreground sm:text-3xl">
-                  Operadores y ranking
-                </h1>
-              </div>
+            <div className="mb-4 flex justify-end">
               <button className={btnGhost} onClick={() => navigateView("home")}>
-                Volver al juego
+                ← Volver al juego
               </button>
             </div>
             <OnlineHub />
