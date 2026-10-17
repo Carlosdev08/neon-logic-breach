@@ -1,4 +1,3 @@
-export { TitleScreen } from "@/components/game/TitleScreen";
 import { useEffect, useRef, type ReactNode, type Dispatch } from "react";
 import {
   HINT_PENALTIES,
@@ -7,6 +6,7 @@ import {
 } from "@/game/logic";
 import { type GameState, type Action } from "@/game/reducer";
 import { play } from "@/game/sound";
+export { TitleScreen } from "@/components/game/TitleScreen";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 const fmt = (t: number) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
