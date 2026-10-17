@@ -314,32 +314,34 @@ export function OnlineHub() {
 
   return (
     <section className="mx-auto grid min-w-0 max-w-6xl gap-4 sm:gap-5">
-      <nav
-        className="grid grid-cols-3 gap-2 border border-border bg-background/60 p-2"
-        aria-label="Secciones de red global"
-      >
-        {(
-          [
-            ["profile", "Mi perfil"],
-            ["ranking", "Ranking"],
-            ["account", "Cuenta"],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            className={tabButton(section === value)}
-            aria-pressed={section === value}
-            onClick={() => {
-              setSection(value);
-              setError("");
-              setMessage("");
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
+      {!(user && section === "profile") && (
+        <nav
+          className="grid grid-cols-3 gap-2 border border-border bg-background/60 p-2"
+          aria-label="Secciones de red global"
+        >
+          {(
+            [
+              ["profile", "Mi perfil"],
+              ["ranking", "Ranking"],
+              ["account", "Cuenta"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={tabButton(section === value)}
+              aria-pressed={section === value}
+              onClick={() => {
+                setSection(value);
+                setError("");
+                setMessage("");
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {authLoading ? (
         <div className={panel} role="status">
@@ -481,95 +483,150 @@ export function OnlineHub() {
           </div>
         </div>
       ) : section === "profile" ? (
-        <div className={panel}>
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
-            Red global · Fase 1
-          </p>
-          <h2 className="mt-2 font-display text-2xl font-bold text-primary sm:text-3xl">
-            TU PERFIL DE OPERADOR
-          </h2>
-          <div className="mt-5 flex min-w-0 items-center gap-4 border border-primary/40 bg-primary/[0.04] p-4 sm:p-5">
+        <div className="min-w-0 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-primary/30 pb-4">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-accent">
+                Red global · Fase 1
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-bold uppercase tracking-wide text-foreground sm:text-3xl">
+                Perfil de operador
+              </h2>
+            </div>
+            <span className="border border-accent/50 px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-accent">
+              ● Sesión activa
+            </span>
+          </div>
+
+          <div className="flex min-w-0 items-center gap-4 border border-primary/70 bg-primary/[0.04] p-4 sm:p-6">
             <div
-              className="flex h-16 w-16 shrink-0 items-center justify-center border border-primary font-display text-2xl font-bold text-primary glow-primary sm:h-20 sm:w-20"
+              className="flex h-20 w-20 shrink-0 items-center justify-center border-2 border-primary bg-primary/[0.06] font-display text-3xl font-bold text-primary sm:h-24 sm:w-24 sm:text-4xl"
               aria-hidden="true"
             >
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="break-words font-display text-xl font-bold text-foreground sm:text-2xl">
+              <p className="break-words font-display text-2xl font-bold text-foreground sm:text-3xl">
                 {displayName}
               </p>
-              <p className="mt-1 break-all text-xs text-muted-foreground">{user.email}</p>
-              <span className="mt-2 inline-flex border border-accent/50 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-accent">
-                ● Sesión activa
-              </span>
-            </div>
-            <span className="hidden shrink-0 border border-primary/40 px-3 py-2 font-mono text-xs text-primary sm:inline">
-              LVL {Math.floor(safeXp / 100) + 1}
-            </span>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Metric
-              label="Rango actual"
-              value={rankProgress.rank.name}
-              detail={`${safeXp.toLocaleString("es-ES")} XP acumulados`}
-            />
-            <Metric
-              label="Puntuación total"
-              value={myStats.totalScore.toLocaleString("es-ES")}
-              detail="En el periodo actual del ranking"
-            />
-            <Metric
-              label="Misiones registradas"
-              value={String(myStats.missions)}
-              detail="Resultados online disponibles"
-            />
-            <Metric label="Cuenta desde" value={createdAt} detail="Fecha de registro" />
-          </div>
-
-          <div className="mt-4 border border-border p-4">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                Progreso al siguiente rango
+              <p className="mt-1 break-all text-sm text-muted-foreground">{user.email}</p>
+              <p className="mt-2 font-mono text-xs uppercase tracking-wider text-primary">
+                Operador · Nivel {Math.floor(safeXp / 100) + 1}
               </p>
-              <p className="font-mono text-xs text-primary">{rankProgress.current}%</p>
             </div>
-            <div
-              className="mt-3 h-2 overflow-hidden bg-muted"
-              role="progressbar"
-              aria-label="Progreso al siguiente rango"
-              aria-valuenow={rankProgress.current}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${rankProgress.current}%` }}
-              />
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {rankProgress.remaining > 0
-                ? `Faltan ${rankProgress.remaining.toLocaleString("es-ES")} XP para el siguiente rango.`
-                : "Has alcanzado el rango máximo."}
-            </p>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              La progresión XP local del juego y las puntuaciones online aún son sistemas separados;
-              aquí no se inventan datos de misiones no sincronizadas.
-            </p>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button className={button} onClick={() => setSection("account")}>
-              Editar perfil →
-            </button>
+          <div className="border border-primary/70 bg-background/40 p-4 sm:p-6">
+            <div className="grid gap-5 sm:grid-cols-[1fr_1.15fr] sm:items-center">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                  Rango actual
+                </p>
+                <p className="mt-2 font-display text-3xl font-bold text-primary sm:text-4xl">
+                  {rankProgress.rank.name}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {safeXp.toLocaleString("es-ES")} XP acumulados
+                </p>
+              </div>
+              <div>
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                    Progreso al siguiente rango
+                  </p>
+                  <p className="font-mono text-sm font-bold text-primary">{rankProgress.current}%</p>
+                </div>
+                <div
+                  className="mt-3 h-3 overflow-hidden border border-primary/40 bg-muted/40"
+                  role="progressbar"
+                  aria-label="Progreso al siguiente rango"
+                  aria-valuenow={rankProgress.current}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className="h-full bg-primary transition-all"
+                    style={{ width: `${rankProgress.current}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  {rankProgress.remaining > 0
+                    ? `Faltan ${rankProgress.remaining.toLocaleString("es-ES")} XP para el siguiente rango.`
+                    : "Has alcanzado el rango máximo."}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="min-w-0 border border-border/80 bg-background/40 p-4 sm:p-5">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground sm:text-xs">
+                Puntuación total
+              </p>
+              <p className="mt-3 break-words font-display text-3xl font-bold text-primary sm:text-4xl">
+                {myStats.totalScore.toLocaleString("es-ES")}
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                Puntos registrados online
+              </p>
+            </div>
+            <div className="min-w-0 border border-border/80 bg-background/40 p-4 sm:p-5">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground sm:text-xs">
+                Misiones registradas
+              </p>
+              <p className="mt-3 break-words font-display text-3xl font-bold text-primary sm:text-4xl">
+                {myStats.missions > 0 ? myStats.missions : "—"}
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {myStats.missions > 0 ? "Resultados online disponibles" : "Aún sin resultados online"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex min-w-0 items-center gap-4 border border-border/80 bg-background/40 p-4 sm:p-5">
+            <span className="font-mono text-2xl text-primary" aria-hidden="true">▦</span>
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                Cuenta desde
+              </p>
+              <p className="mt-1 font-display text-2xl font-bold text-primary sm:text-3xl">
+                {createdAt}
+              </p>
+            </div>
+          </div>
+
+          <button
+            className={button + " min-h-14 w-full justify-between px-5 text-sm sm:text-base"}
+            onClick={() => {
+              setSection("account");
+              setEditingProfile(true);
+              setProfileName(displayName);
+              setError("");
+              setMessage("");
+            }}
+          >
+            <span>✎ &nbsp; Editar perfil</span>
+            <span aria-hidden="true">›</span>
+          </button>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
             <button
               className={button + " border-border text-muted-foreground"}
               onClick={() => setSection("ranking")}
             >
-              Ver ranking →
+              Ver ranking
+            </button>
+            <button
+              className={button + " border-border text-muted-foreground"}
+              disabled={busy}
+              onClick={() => void signOut()}
+            >
+              {busy ? "Cerrando sesión…" : "↪ Cerrar sesión"}
             </button>
           </div>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            La experiencia local del juego y las puntuaciones online son sistemas separados. Solo se muestran aquí los resultados online sincronizados.
+          </p>
         </div>
       ) : section === "ranking" ? (
         <div className={panel}>
