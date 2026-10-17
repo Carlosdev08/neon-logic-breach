@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useReducer, useRef, useState } from "react";
 import { type Difficulty } from "@/game/logic";
 import { reducer, initialState, type GameState } from "@/game/reducer";
 import { DEFAULT_SAVE, type SaveData } from "@/game/storage";
@@ -8,6 +8,8 @@ import { useGamePersistence } from "@/components/game/useGamePersistence";
 import { useSubmitMissionScore } from "@/components/game/useSubmitMissionScore";
 import { useGameTransitionEffects } from "@/components/game/useGameTransitionEffects";
 import { OnlineHub } from "@/components/game/OnlineHub";
+import { GameHeader } from "@/components/game/GameHeader";
+import { useGameNavigation } from "@/components/game/useGameNavigation";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
 
@@ -25,33 +27,7 @@ export function NeonBreach() {
   const { loaded } = useGamePersistence(s, dispatch, save, setSave, prev);
   const [help, setHelp] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const [activeView, setActiveView] = useState<"home" | "online">(() =>
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("view") === "online"
-      ? "online"
-      : "home",
-  );
-
-  const navigateView = (view: "home" | "online") => {
-    setActiveView(view);
-    const url = new URL(window.location.href);
-    if (view === "online") {
-      url.searchParams.set("view", "online");
-    } else {
-      url.searchParams.delete("view");
-    }
-    window.history.pushState({}, "", url);
-  };
-
-  useEffect(() => {
-    const syncViewFromUrl = () => {
-      setActiveView(
-        new URLSearchParams(window.location.search).get("view") === "online" ? "online" : "home",
-      );
-    };
-    window.addEventListener("popstate", syncViewFromUrl);
-    return () => window.removeEventListener("popstate", syncViewFromUrl);
-  }, []);
+  const { activeView, navigateView } = useGameNavigation();
 
   useGameTransitionEffects(s, prev, save.sound, loaded, setSave);
 
@@ -67,47 +43,21 @@ export function NeonBreach() {
 
   const toggleSound = () => setSave((v) => ({ ...v, sound: !v.sound }));
 
-  const header = (
-    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
-      <button
-        onClick={() => dispatch({ type: "QUIT" })}
-        className="font-display text-xl font-bold tracking-[0.25em] text-primary glow-primary animate-flicker"
-        aria-label="Volver al inicio"
-      >
-        NEON<span className="text-destructive glow-danger">//</span>BREACH
-      </button>
-      <div className="flex items-center gap-2">
-        {s.phase === "title" && (
-          <button
-            onClick={() => navigateView(activeView === "home" ? "online" : "home")}
-            className={btnGhost}
-            aria-pressed={activeView === "online"}
-          >
-            {activeView === "online" ? "Inicio" : "Red global"}
-          </button>
-        )}
-        <span className="hidden font-mono text-xs text-muted-foreground sm:inline">
-          RÉCORD {save.bestScore.toLocaleString("es")}
-        </span>
-        <button onClick={toggleSound} className={btnGhost} aria-pressed={save.sound}>
-          Sonido: {save.sound ? "Sí" : "No"}
-        </button>
-        <button
-          onClick={() => {
-            if (s.phase === "playing") dispatch({ type: "PAUSE" });
-            setHelp(true);
-          }}
-          className={btnGhost}
-        >
-          Cómo jugar
-        </button>
-      </div>
-    </header>
-  );
-
   return (
     <div className="scanlines neon-bg min-h-screen text-foreground">
-      {header}
+      <GameHeader
+        phase={s.phase}
+        bestScore={save.bestScore}
+        soundEnabled={save.sound}
+        activeView={activeView}
+        onQuit={() => dispatch({ type: "QUIT" })}
+        onToggleSound={() => setSave((value) => ({ ...value, sound: !value.sound }))}
+        onNavigate={navigateView}
+        onHelp={() => {
+          if (s.phase === "playing") dispatch({ type: "PAUSE" });
+          setHelp(true);
+        }}
+      />
       {s.phase === "title" ? (
         activeView === "online" ? (
           <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
