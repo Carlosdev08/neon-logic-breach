@@ -4,7 +4,8 @@ export { TitleScreen } from "@/components/game/TitleScreen";
 
 export { GameScreen, Key, Stat, Overlay } from "@/components/game/GameScreen";
 
-const btn = "font-mono uppercase tracking-wider text-sm px-4 py-2 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+const btn =
+  "font-mono uppercase tracking-wider text-sm px-4 py-2 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
 const btnGhost = `${btn} border-border text-muted-foreground hover:text-foreground hover:border-primary`;
 
 export function Modal({
