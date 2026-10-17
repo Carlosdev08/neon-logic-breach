@@ -6,6 +6,7 @@ import {
 } from "@/game/logic";
 import { type GameState, type Action } from "@/game/reducer";
 import { play } from "@/game/sound";
+
 export { TitleScreen } from "@/components/game/TitleScreen";
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
