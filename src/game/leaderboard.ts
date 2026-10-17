@@ -24,7 +24,6 @@ export function getLeaderboardUsername(
   return (Array.isArray(profiles) ? profiles[0]?.username : profiles?.username) ?? "Operador";
 }
 
-
 export type ScoreEntry = {
   user_id: string;
   score: number;
