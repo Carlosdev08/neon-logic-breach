@@ -9,8 +9,8 @@ describe("leaderboard helpers", () => {
       { user_id: "u2", score: 1200, difficulty: "medio", created_at: "2026-10-15T10:00:00Z", profiles: { username: "Otro" }, id: "3" },
     ]);
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toMatchObject({ user_id: "u2", totalScore: 1200, missions: 1 });
-    expect(rows[1]).toMatchObject({ user_id: "u1", totalScore: 1690, missions: 2 });
+    expect(rows[0]).toMatchObject({ user_id: "u1", totalScore: 1690, missions: 2 });
+    expect(rows[1]).toMatchObject({ user_id: "u2", totalScore: 1200, missions: 1 });
   });
 
   it("does not apply a date boundary to the global leaderboard", () => {
